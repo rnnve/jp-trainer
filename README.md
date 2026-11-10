@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This project was developed with the help of ChatGPT Codex.
+
 # Kotoba · ことば
 
 เรียนภาษาญี่ปุ่นได้ทุกคน ทั้งแบบผู้เยี่ยมชมและบัญชี **Clerk** ไม่มี owner allowlist อีกต่อไป
