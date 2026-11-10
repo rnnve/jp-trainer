@@ -1,0 +1,33 @@
+{
+  "name": "kotoba-jp-trainer",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "test:access": "bun scripts/check-access.ts"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^7.9.25",
+    "@m3e/web": "latest",
+    "@upstash/redis": "^1.41.0",
+    "lucide-react": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "latest",
+    "@types/bun": "^1.4.4",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@types/react-test-renderer": "^19.3.1",
+    "react-test-renderer": "^19.3.1",
+    "tailwindcss": "latest",
+    "typescript": "latest"
+  }
+}
