@@ -1,0 +1,1 @@
+{"framework":"nextjs","installCommand":"bun install --frozen-lockfile","buildCommand":"bun run build"}
