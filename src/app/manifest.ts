@@ -1,0 +1,2 @@
+import type { MetadataRoute } from 'next';
+export default function manifest():MetadataRoute.Manifest{return {id:'/',name:'Kotoba — เรียนภาษาญี่ปุ่น',short_name:'Kotoba',description:'เรียนญี่ปุ่น ทีละนิด ทุกวัน',lang:'th',start_url:'/',scope:'/',display:'standalone',background_color:'#0d1115',theme_color:'#0d1115',icons:[{src:'/icons/icon-192.png',sizes:'192x192',type:'image/png',purpose:'any'},{src:'/icons/icon-512.png',sizes:'512x512',type:'image/png',purpose:'any'},{src:'/icons/maskable-512.png',sizes:'512x512',type:'image/png',purpose:'maskable'}]};}
