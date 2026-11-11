@@ -1409,7 +1409,7 @@ export default function Trainer({ section }: { section: string }) {
               )}
               {practiceBook === "jlpt-kanji" && (
                 <p className="support-note practice-source-note">
-                  รายการคันจิ OpenJLPT 0.3.0 · CC BY-SA 4.0 · ระดับเป็นรายการอ้างอิงทั่วไป ไม่ใช่รายการทางการของ JLPT
+                  รายการคันจิ OpenJLPT 0.3.0 · CC BY-SA 4.0 · ความหมายแปลไทยอัตโนมัติจากต้นฉบับภาษาอังกฤษ · ระดับเป็นรายการอ้างอิงทั่วไป ไม่ใช่รายการทางการของ JLPT
                 </p>
               )}
             </>
