@@ -2067,7 +2067,14 @@ curl -H "Authorization: Bearer $KOTOBA_API_KEY" \
             ) : (
               <div className="example-box">
                 <span>ลองใช้ในประโยค</span>
-                <p lang="ja">{active.example}</p>
+                <p lang="ja">
+                  <ExampleSentence
+                    furigana={furigana}
+                    reading={active.reading}
+                    sentence={active.example}
+                    target={active.japanese}
+                  />
+                </p>
                 <span>{active.translation}</span>
                 <button
                   className="icon-button"
@@ -2263,6 +2270,32 @@ function JapaneseWord({
       {text}<rt>{reading}</rt>
     </ruby>
   );
+}
+function ExampleSentence({
+  sentence,
+  target,
+  reading,
+  furigana,
+}: {
+  sentence: string;
+  target: string;
+  reading: string;
+  furigana: boolean;
+}) {
+  if (!furigana || !target || !sentence.includes(target)) return sentence;
+  return sentence.split(target).flatMap((part, index, parts) => [
+    part,
+    ...(index < parts.length - 1
+      ? [
+          <JapaneseWord
+            furigana
+            key={`${target}-${index}`}
+            reading={reading}
+            text={target}
+          />,
+        ]
+      : []),
+  ]);
 }
 function Empty({
   title,
