@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0d1115",
+  themeColor: "#090909",
 };
 export default function Layout({ children }: { children: React.ReactNode }) {
   const content = (
@@ -42,13 +42,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       afterSignOutUrl="/hn/learn"
       appearance={{
         variables: {
-          colorPrimary: "#55dfcf",
-          colorBackground: "#161c22",
-          colorForeground: "#e8eff2",
-          colorMutedForeground: "#acbbc4",
-          colorInput: "#202830",
-          colorInputForeground: "#e8eff2",
-          colorNeutral: "#e8eff2",
+          colorPrimary: "#f4f4f5",
+          colorBackground: "#121212",
+          colorForeground: "#f4f4f5",
+          colorMutedForeground: "#a1a1aa",
+          colorInput: "#1c1c1f",
+          colorInputForeground: "#f4f4f5",
+          colorNeutral: "#f4f4f5",
           fontFamily: "var(--font-ui)",
           borderRadius: "12px",
         },

@@ -5,15 +5,15 @@
    Design review informed by unslop, Damir Sokolovsky (@heydamir), CC BY 4.0. */
 :root {
   color-scheme: dark;
-  --bg: #0d1115;
-  --surface: #161c22;
-  --raised: #202830;
-  --ink: #e8eff2;
-  --secondary: #acbbc4;
-  --muted: #8b9ca7;
-  --primary: #55dfcf;
-  --accent-soft: #19332f;
-  --line: #2b363e;
+  --bg: #090909;
+  --surface: #151515b8;
+  --raised: #202022;
+  --ink: #f4f4f5;
+  --secondary: #c4c4c9;
+  --muted: #929298;
+  --primary: #f4f4f5;
+  --accent-soft: #2a2a2e;
+  --line: #333338;
   --font-ui: "DM Sans", "Noto Sans Thai", "Noto Sans JP", sans-serif;
   --font-japanese: "Noto Sans JP", sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -3798,4 +3798,123 @@ body:has(.login-page) {
 }
 @media (max-height: 600px) and (max-width: 800px) {
   .login-info { display: none; }
+}
+
+/* Monochrome glass redesign */
+body {
+  background:
+    radial-gradient(900px 600px at 8% -10%, #36363a38, transparent 62%),
+    radial-gradient(700px 520px at 100% 0%, #ffffff10, transparent 65%),
+    #090909;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .38;
+  background-image: linear-gradient(#ffffff05 1px, transparent 1px), linear-gradient(90deg, #ffffff04 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+.sidebar,
+.topbar,
+.public-header,
+.lesson-dialog,
+.login-card {
+  background: #121212b8 !important;
+  border-color: #ffffff18 !important;
+  -webkit-backdrop-filter: blur(22px) saturate(120%);
+  backdrop-filter: blur(22px) saturate(120%);
+  box-shadow: 0 18px 60px #00000055;
+}
+.sidebar { border-right: 1px solid #ffffff10; }
+.topbar { border-bottom: 1px solid #ffffff10; }
+.panel,
+.lesson-card,
+.flash-session,
+.quiz-panel,
+.quiz-result,
+.conversation-panel,
+.book-card,
+.stat-tile,
+.public-word,
+.practice-unit-picker,
+.about-card,
+.login-context {
+  background: linear-gradient(145deg, #ffffff0d, #ffffff05) !important;
+  border-color: #ffffff17 !important;
+  box-shadow: 0 12px 36px #00000030;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.lesson-card:hover,
+.stat-tile:hover,
+.book-card:hover {
+  transform: translateY(-3px);
+  border-color: #ffffff45 !important;
+  box-shadow: 0 20px 42px #00000055;
+}
+.lesson-card,
+.stat-tile,
+.book-card { transition: transform 180ms var(--ease), border-color 180ms var(--ease), box-shadow 180ms var(--ease); }
+.brand-icon,
+.fallback:not(.tonal):not(.text):not(.outlined),
+.owner-link,
+.about-actions a:first-child {
+  background: #f4f4f5 !important;
+  color: #111113 !important;
+}
+.brand-dot,
+.text-link,
+.nav-item.selected,
+.nav-item.selected svg,
+.topbar-logo,
+.quiz-score,
+.public-word-kanji,
+.login-info-kana { color: #f4f4f5 !important; }
+.nav-item.selected {
+  background: #ffffff14 !important;
+  box-shadow: inset 0 0 0 1px #ffffff12;
+}
+.nav-dot,
+.green-dot { background: #f4f4f5 !important; }
+.small-chip,
+.status-chip,
+.practice-unit-picker label,
+.tabs button,
+.filter-bookmark,
+.search-box,
+.goal-input,
+.api-key-form input,
+.api-key-form select,
+.practice-settings select {
+  background: #ffffff0b !important;
+  border-color: #ffffff18 !important;
+}
+.tabs button.active,
+.practice-direction button.active {
+  background: #f4f4f5 !important;
+  border-color: #f4f4f5 !important;
+  color: #111113 !important;
+}
+.quiz-options button.correct,
+.answer-feedback.good {
+  color: #f4f4f5 !important;
+  background: #ffffff12 !important;
+  border-color: #ffffff4a !important;
+}
+.answer-feedback { background: #302b2b !important; color: #f1d4d4; }
+.progress-track,
+.activity-track { background: #ffffff12 !important; }
+.progress-track > span,
+.activity-track > span,
+.bar-row > div > span { background: #f4f4f5 !important; }
+.lesson-dialog::backdrop,
+.nav-backdrop { background: #0000009c; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+::selection { background: #f4f4f580; color: #090909; }
+@media (max-width: 700px) {
+  .sidebar { background: #101010ed !important; }
+  .topbar { background: #101010ce !important; }
 }

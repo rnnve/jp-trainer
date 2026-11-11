@@ -2138,7 +2138,7 @@ curl -H "Authorization: Bearer $KOTOBA_API_KEY" \
       {createElement(
         "m3e-theme",
         {
-          color: "#55dfcf",
+          color: "#f4f4f5",
           scheme: "dark",
           motion: "expressive",
           "strong-focus": true,
