@@ -4,6 +4,11 @@ import "./globals.css";
 import PwaClient from "@/components/pwa-client";
 import { ClerkLearnerSession } from "@/components/account-session";
 import { clerkConfigured } from "@/lib/auth-policy";
+import { Inter } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+
 export const metadata: Metadata = {
   title: {
     default: "Kotoba — เรียนญี่ปุ่น ทีละนิด ทุกวัน",
@@ -22,7 +27,7 @@ export const viewport: Viewport = {
 };
 export default function Layout({ children }: { children: React.ReactNode }) {
   const content = (
-    <html lang="th">
+    <html lang="th" className={cn("dark font-sans", inter.variable)}>
       <body>
         <PwaClient />
         {clerkConfigured() ? (

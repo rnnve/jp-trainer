@@ -1,15 +1,13 @@
 "use client";
 
 import {
-  createContext,
-  createElement,
-  useContext,
   useEffect,
   useRef,
   useState,
   type ReactNode,
 } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import ApiKeyManager from "@/components/api-key-manager";
 import {
@@ -72,7 +70,7 @@ import {
   type Progress,
 } from "@/lib/progress";
 
-const M3Ready = createContext(false);
+
 function Action({
   children,
   onClick,
@@ -86,23 +84,8 @@ function Action({
   disabled?: boolean;
   className?: string;
 }) {
-  const ready = useContext(M3Ready);
-  return ready ? (
-    createElement(
-      "m3e-button",
-      { variant, size: "medium", onClick, disabled, className },
-      children,
-    )
-  ) : (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className={`action fallback ${variant} ${className}`}
-    >
-      {children}
-    </button>
-  );
+  const variants = { filled: "default", tonal: "secondary", outlined: "outline", text: "ghost" } as const;
+  return <Button type="button" disabled={disabled} onClick={onClick} variant={variants[variant]} className={`min-h-11 gap-2 px-4 ${className}`}>{children}</Button>;
 }
 const nav = [
   { path: "learn", label: "พื้นที่เรียน", icon: GraduationCap },
@@ -162,7 +145,7 @@ export default function Trainer({ section }: { section: string }) {
     }
     router.push(path);
   }
-  const [ready, setReady] = useState(false);
+
   const session = useLearnerSession();
   const {
     progress,
@@ -207,9 +190,6 @@ export default function Trainer({ section }: { section: string }) {
   const dialog = useRef<HTMLDialogElement>(null),
     fileInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    Promise.all([import("@m3e/web/button"), import("@m3e/web/theme")])
-      .then(() => setReady(true))
-      .catch(() => {});
     const onOnline = () => setOffline(!navigator.onLine);
     onOnline();
     window.addEventListener("online", onOnline);
@@ -2133,21 +2113,9 @@ curl -H "Authorization: Bearer $KOTOBA_API_KEY" \
       )}
     </div>
   );
-  return (
-    <M3Ready.Provider value={ready}>
-      {createElement(
-        "m3e-theme",
-        {
-          color: "#f4f4f5",
-          scheme: "dark",
-          motion: "expressive",
-          "strong-focus": true,
-        },
-        app,
-      )}
-    </M3Ready.Provider>
-  );
+  return app;
 }
+
 interface InstallPrompt extends Event {
   prompt: () => Promise<void>;
 }
