@@ -52,6 +52,7 @@ export type PracticeUnit = {
  lesson: number | Level;
  exercise: number | null;
  words: PracticeWord[];
+ wordCount?: number;
 };
 export type PracticeBook = {
  id: string;
@@ -112,6 +113,12 @@ export const practiceBooks: PracticeBook[] = [{
 }, {
  id: 'jlpt-kanji',
  title: 'คันจิ JLPT N5–N1',
- units: levels.map((level) => jlptUnit('kanji', level, kanji)),
+ units: levels.map((level) => ({
+  id: `openjlpt-kanji-${level}`,
+  lesson: level,
+  exercise: null,
+  words: [],
+  wordCount: { N5: 84, N4: 169, N3: 387, N2: 398, N1: 1345 }[level],
+ })),
 }];
 export function contentStats() { return {total:lessons.length,byLevel:Object.fromEntries(levels.map(l=>[l,lessons.filter(x=>x.level===l).length])),byCategory:Object.fromEntries(Object.keys(categoryNames).map(c=>[c,lessons.filter(x=>x.category===c).length])),source:'original-seed-content',coverage:'Starter examples, not a complete JLPT syllabus. Level assignments are editorial, not official JLPT lists.',books:books.length}; }

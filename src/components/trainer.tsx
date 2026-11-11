@@ -62,6 +62,7 @@ import {
   type Category,
   type Lesson,
   type Level,
+  type PracticeWord,
 } from "@/lib/content";
 import {
   localDate,
@@ -199,6 +200,8 @@ export default function Trainer({ section }: { section: string }) {
     [practiceChecked, setPracticeChecked] = useState(false),
     [practiceCorrect, setPracticeCorrect] = useState(0),
     [practiceDone, setPracticeDone] = useState(false);
+  const [openJlptKanji, setOpenJlptKanji] = useState<PracticeWord[]>([]),
+    [openJlptKanjiLoading, setOpenJlptKanjiLoading] = useState(false);
   const [speaking, setSpeaking] = useState(false),
     [audioMessage, setAudioMessage] = useState("");
   const dialog = useRef<HTMLDialogElement>(null),
@@ -305,10 +308,17 @@ export default function Trainer({ section }: { section: string }) {
     levelLessons[0];
   const activePracticeBook =
     practiceBooks.find((book) => book.id === practiceBook) ?? practiceBooks[0];
-  const allPracticeWords = activePracticeBook.units.flatMap((unit) => unit.words);
-  const practiceQuestions = activePracticeBook.units
+  const selectedPracticeWords = activePracticeBook.units
     .filter((unit) => selectedPracticeUnits.includes(unit.id))
     .flatMap((unit) => unit.words);
+  const openJlptSelectedLevels = activePracticeBook.units
+    .filter((unit) => selectedPracticeUnits.includes(unit.id))
+    .map((unit) => unit.lesson)
+    .filter((lesson): lesson is Level => typeof lesson === "string");
+  const allPracticeWords =
+    practiceBook === "jlpt-kanji" ? openJlptKanji : activePracticeBook.units.flatMap((unit) => unit.words);
+  const practiceQuestions =
+    practiceBook === "jlpt-kanji" ? openJlptKanji : selectedPracticeWords;
   const practiceQuestion = practiceQuestions[practiceIndex];
   const practiceOptions = practiceQuestion
     ? (() => {
@@ -343,6 +353,37 @@ export default function Trainer({ section }: { section: string }) {
         .toLowerCase()
         .includes(query.toLowerCase()),
   );
+  useEffect(() => {
+    if (practiceBook !== "jlpt-kanji") {
+      setOpenJlptKanji([]);
+      setOpenJlptKanjiLoading(false);
+      return;
+    }
+    if (!openJlptSelectedLevels.length) {
+      setOpenJlptKanji([]);
+      return;
+    }
+    const controller = new AbortController();
+    setOpenJlptKanjiLoading(true);
+    fetch(`/api/v1/jlpt-kanji?levels=${openJlptSelectedLevels.join(",")}`, {
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) throw Error();
+        return (await response.json()) as { data: PracticeWord[] };
+      })
+      .then((response) => setOpenJlptKanji(response.data))
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setOpenJlptKanji([]);
+          notify("ไม่สามารถโหลดชุดคันจิ OpenJLPT ได้");
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setOpenJlptKanjiLoading(false);
+      });
+    return () => controller.abort();
+  }, [practiceBook, selectedPracticeUnits]);
   function notify(message: string) {
     setToast(message);
   }
@@ -1204,7 +1245,7 @@ export default function Trainer({ section }: { section: string }) {
                                 {unit.exercise === null
                                   ? "คำศัพท์ทั้งหมด"
                                   : `れんしゅう ${unit.exercise}`}
-                                <small>{unit.words.length} คำ</small>
+                                <small>{unit.wordCount ?? unit.words.length} คำ</small>
                               </label>
                             ))}
                         </div>
@@ -1244,7 +1285,12 @@ export default function Trainer({ section }: { section: string }) {
                   </div>
                 </fieldset>
               </div>
-              {practiceQuestions.length === 0 ? (
+              {openJlptKanjiLoading ? (
+                <div className="quiz-result" role="status">
+                  <h2>กำลังโหลดคันจิ</h2>
+                  <p>กำลังเตรียมชุดคันจิ JLPT ตามระดับที่เลือก</p>
+                </div>
+              ) : practiceQuestions.length === 0 ? (
                 <Empty
                   title="ยังไม่ได้เลือก れんしゅう"
                   text="เลือกอย่างน้อยหนึ่ง れんしゅう เพื่อเริ่มฝึกคำศัพท์"
@@ -1368,6 +1414,11 @@ export default function Trainer({ section }: { section: string }) {
                     </div>
                   )}
                 </div>
+              )}
+              {practiceBook === "jlpt-kanji" && (
+                <p className="support-note practice-source-note">
+                  รายการคันจิ OpenJLPT 0.3.0 · CC BY-SA 4.0 · ระดับเป็นรายการอ้างอิงทั่วไป ไม่ใช่รายการทางการของ JLPT
+                </p>
               )}
             </>
           )}
