@@ -1275,6 +1275,62 @@ m3e-button:not(:defined),
   background: var(--surface);
   padding: 32px;
 }
+.practice-settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  max-width: 680px;
+  margin: 28px auto 0;
+}
+.practice-settings label,
+.practice-settings fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  color: var(--secondary);
+  font-size: 13px;
+}
+.practice-settings fieldset {
+  grid-column: 1 / -1;
+}
+.practice-settings legend {
+  margin-bottom: 8px;
+}
+.practice-settings select {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.practice-direction {
+  display: flex;
+  gap: 10px;
+}
+.practice-direction button {
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--secondary);
+  font-size: 14px;
+}
+.practice-direction button.active {
+  border-color: var(--primary);
+  background: var(--raised);
+  color: var(--primary);
+}
+.quiz-panel > h2.thai-prompt {
+  font-family: inherit;
+  font-size: 28px;
+  line-height: 1.5;
+}
 .quiz-panel > h2 {
   font-family: var(--font-japanese);
   text-align: center;
@@ -2984,6 +3040,13 @@ m3e-button:not(:defined),
   }
   .quiz-panel {
     padding: 24px 20px;
+  }
+  .practice-settings {
+    grid-template-columns: 1fr;
+    margin-top: 20px;
+  }
+  .practice-direction {
+    flex-direction: column;
   }
   .quiz-panel > h2 {
     font-size: 40px;

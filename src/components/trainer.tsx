@@ -171,10 +171,16 @@ export default function Trainer({ section }: { section: string }) {
     [flipped, setFlipped] = useState(false),
     [reviewed, setReviewed] = useState<string[]>([]),
     [allCards, setAllCards] = useState(false);
-  const [quizIndex, setQuizIndex] = useState(0),
-    [answer, setAnswer] = useState<string | null>(null),
-    [quizCorrect, setQuizCorrect] = useState(0),
-    [quizDone, setQuizDone] = useState(false);
+  const [practiceBook, setPracticeBook] = useState("kotoba"),
+    [practiceLevel, setPracticeLevel] = useState<Level>(level),
+    [practiceDirection, setPracticeDirection] = useState<
+      "thai-to-japanese" | "japanese-to-thai"
+    >("thai-to-japanese"),
+    [practiceIndex, setPracticeIndex] = useState(0),
+    [practiceAnswer, setPracticeAnswer] = useState(""),
+    [practiceChecked, setPracticeChecked] = useState(false),
+    [practiceCorrect, setPracticeCorrect] = useState(0),
+    [practiceDone, setPracticeDone] = useState(false);
   const [speaking, setSpeaking] = useState(false),
     [audioMessage, setAudioMessage] = useState("");
   const dialog = useRef<HTMLDialogElement>(null),
@@ -251,10 +257,7 @@ export default function Trainer({ section }: { section: string }) {
     setReviewed([]);
     setFlashIndex(0);
     setFlipped(false);
-    setQuizIndex(0);
-    setAnswer(null);
-    setQuizCorrect(0);
-    setQuizDone(false);
+    resetTranslationPractice();
     setSpeaking(false);
     window.speechSynthesis?.cancel();
   }, [session.userId]);
@@ -282,11 +285,28 @@ export default function Trainer({ section }: { section: string }) {
   const nextLesson =
     levelLessons.find((l) => !progress.completed.includes(l.id)) ??
     levelLessons[0];
-  const quizQuestions = levelLessons.filter((l) => l.category === "vocabulary");
-  const question = quizQuestions[quizIndex % quizQuestions.length];
-  const options = quizQuestions
-    .map((l) => l.meaning)
-    .sort((a, b) => a.localeCompare(b, "th"));
+  const practiceQuestions = lessons.filter(
+    (l) => l.category === "vocabulary" && l.level === practiceLevel,
+  );
+  const practiceQuestion = practiceQuestions[practiceIndex];
+  const practiceOptions = practiceQuestion
+    ? [
+        practiceDirection === "thai-to-japanese"
+          ? practiceQuestion.japanese
+          : practiceQuestion.meaning,
+        ...practiceQuestions
+          .filter((l) => l.id !== practiceQuestion.id)
+          .slice(0, 3)
+          .map((l) =>
+            practiceDirection === "thai-to-japanese" ? l.japanese : l.meaning,
+          ),
+      ].sort((a, b) => {
+        const score = (value: string) =>
+          [...value].reduce((total, char) => total + char.charCodeAt(0), 0) +
+          practiceIndex * 31;
+        return score(a) - score(b);
+      })
+    : [];
   const filtered = levelLessons.filter(
     (l) =>
       (category === "all" || l.category === category) &&
@@ -303,13 +323,14 @@ export default function Trainer({ section }: { section: string }) {
     setFlashIndex(0);
     setReviewed([]);
     setFlipped(false);
-    resetQuiz();
+    resetTranslationPractice();
   }
-  function resetQuiz() {
-    setQuizIndex(0);
-    setAnswer(null);
-    setQuizCorrect(0);
-    setQuizDone(false);
+  function resetTranslationPractice() {
+    setPracticeIndex(0);
+    setPracticeAnswer("");
+    setPracticeChecked(false);
+    setPracticeCorrect(0);
+    setPracticeDone(false);
   }
   function save(id: string) {
     setProgress((p) => ({
@@ -348,18 +369,38 @@ export default function Trainer({ section }: { section: string }) {
     setFlipped(false);
     setFlashIndex(0);
   }
-  function choose(value: string) {
-    if (answer !== null) return;
-    setAnswer(value);
-    const correct = value === question.meaning;
-    if (correct) setQuizCorrect((n) => n + 1);
+  function checkPracticeAnswer(value: string) {
+    if (practiceChecked || !practiceQuestion) return;
+    const expected =
+      practiceDirection === "thai-to-japanese"
+        ? practiceQuestion.japanese
+        : practiceQuestion.meaning;
+    const correct = value === expected;
+    setPracticeAnswer(value);
+    setPracticeChecked(true);
+    if (correct) setPracticeCorrect((n) => n + 1);
     setProgress((p) => ({
       ...p,
       activity: [
         ...p.activity,
-        { date: localDate(), kind: "quiz", id: question.id, correct },
+        {
+          date: localDate(),
+          kind: "quiz",
+          id: practiceQuestion.id,
+          correct,
+        },
       ],
     }));
+  }
+  function nextPracticeQuestion() {
+    if (!practiceQuestion) return;
+    if (practiceIndex + 1 === practiceQuestions.length) {
+      setPracticeDone(true);
+      return;
+    }
+    setPracticeIndex((i) => i + 1);
+    setPracticeAnswer("");
+    setPracticeChecked(false);
   }
   function speak(text: string) {
     if (!("speechSynthesis" in window)) {
@@ -1047,94 +1088,175 @@ export default function Trainer({ section }: { section: string }) {
           {section === "practice" && (
             <>
               <PageHeading
-                eyebrow="ฝึกความหมายคำศัพท์"
-                title="แบบฝึกหัดคำศัพท์"
-                description="แบบฝึกหัดความหมายคำศัพท์ 5 ข้อต่อระดับ พร้อมเฉลยทันที"
+                eyebrow="ฝึกแปลคำศัพท์"
+                title="ฝึกคำศัพท์"
+                description="เลือกหนังสือ บท และทิศทางการแปล แล้วเลือกคำตอบที่ถูกต้องจาก 4 ตัวเลือก"
               />
-              <LevelTabs level={level} onChange={changeLevel} />
-              {quizDone ? (
+              <div className="practice-settings" aria-label="ตั้งค่าการฝึกคำศัพท์">
+                <label>
+                  หนังสือ / ชุดคำศัพท์
+                  <select
+                    value={practiceBook}
+                    onChange={(e) => {
+                      setPracticeBook(e.target.value);
+                      resetTranslationPractice();
+                    }}
+                  >
+                    <option value="kotoba">Kotoba: คำศัพท์ JLPT เริ่มต้น</option>
+                    {books.map((book) => (
+                      <option key={book.isbn} disabled value={book.isbn}>
+                        {book.title} (ยังไม่มีบทสำหรับฝึก)
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  บท
+                  <select
+                    value={practiceLevel}
+                    onChange={(e) => {
+                      setPracticeLevel(e.target.value as Level);
+                      resetTranslationPractice();
+                    }}
+                  >
+                    {levels.map((item) => (
+                      <option key={item} value={item}>
+                        บทคำศัพท์ {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <fieldset>
+                  <legend>ทิศทางการแปล</legend>
+                  <div className="practice-direction">
+                    <button
+                      aria-pressed={practiceDirection === "thai-to-japanese"}
+                      className={
+                        practiceDirection === "thai-to-japanese" ? "active" : ""
+                      }
+                      onClick={() => {
+                        setPracticeDirection("thai-to-japanese");
+                        resetTranslationPractice();
+                      }}
+                      type="button"
+                    >
+                      ไทย → ญี่ปุ่น
+                    </button>
+                    <button
+                      aria-pressed={practiceDirection === "japanese-to-thai"}
+                      className={
+                        practiceDirection === "japanese-to-thai" ? "active" : ""
+                      }
+                      onClick={() => {
+                        setPracticeDirection("japanese-to-thai");
+                        resetTranslationPractice();
+                      }}
+                      type="button"
+                    >
+                      ญี่ปุ่น → ไทย
+                    </button>
+                  </div>
+                </fieldset>
+              </div>
+              {practiceDone ? (
                 <div className="quiz-result">
                   <span className="small-label">結果 / ผลการฝึก</span>
                   <h2>ผลการฝึกคำศัพท์</h2>
                   <div className="quiz-score">
-                    {quizCorrect}
-                    <span> / {quizQuestions.length}</span>
+                    {practiceCorrect}
+                    <span> / {practiceQuestions.length}</span>
                   </div>
                   <p>
                     ตอบถูก{" "}
-                    {Math.round((quizCorrect / quizQuestions.length) * 100)}% ·
+                    {Math.round((practiceCorrect / practiceQuestions.length) * 100)}% ·
                     ลองทบทวนคำที่ยังไม่คุ้นอีกครั้ง
                   </p>
-                  <Action onClick={resetQuiz}>
+                  <Action onClick={resetTranslationPractice}>
                     ฝึกอีกครั้ง <RotateCcw size={17} />
                   </Action>
                 </div>
               ) : (
                 <div className="quiz-panel">
                   <div className="session-top">
-                    <span>เลือกความหมายที่ถูกต้อง</span>
                     <span>
-                      {quizIndex + 1} / {quizQuestions.length}
+                      {practiceDirection === "thai-to-japanese"
+                        ? "เลือกคำภาษาญี่ปุ่นที่ถูกต้อง"
+                        : "เลือกคำแปลภาษาไทยที่ถูกต้อง"}
+                    </span>
+                    <span>
+                      {practiceIndex + 1} / {practiceQuestions.length}
                     </span>
                   </div>
                   <div className="progress-track">
                     <span
                       style={{
-                        transform: `scaleX(${quizIndex / quizQuestions.length})`,
+                        transform: `scaleX(${practiceIndex / practiceQuestions.length})`,
                       }}
                     />
                   </div>
-                  <h2 lang="ja">{question.japanese}</h2>
-                  <p className="quiz-reading">{question.reading}</p>
+                  <h2
+                    className={
+                      practiceDirection === "thai-to-japanese" ? "thai-prompt" : ""
+                    }
+                    lang={practiceDirection === "thai-to-japanese" ? "th" : "ja"}
+                  >
+                    {practiceDirection === "thai-to-japanese"
+                      ? practiceQuestion.meaning
+                      : practiceQuestion.japanese}
+                  </h2>
+                  {practiceDirection === "japanese-to-thai" && (
+                    <p className="quiz-reading">{practiceQuestion.reading}</p>
+                  )}
                   <div className="quiz-options">
-                    {options.map((o, i) => (
+                    {practiceOptions.map((option, i) => {
+                      const correct =
+                        option ===
+                        (practiceDirection === "thai-to-japanese"
+                          ? practiceQuestion.japanese
+                          : practiceQuestion.meaning);
+                      return (
                       <button
-                        key={o}
-                        disabled={answer !== null}
-                        onClick={() => choose(o)}
+                        key={option}
+                        disabled={practiceChecked}
+                        onClick={() => checkPracticeAnswer(option)}
                         className={
-                          answer === null
+                          !practiceChecked
                             ? ""
-                            : o === question.meaning
+                            : correct
                               ? "correct"
-                              : answer === o
+                              : practiceAnswer === option
                                 ? "incorrect"
                                 : ""
                         }
                       >
                         <span>{i + 1}</span>
-                        {o}
-                        {answer !== null && o === question.meaning && (
+                        {option}
+                        {practiceChecked && correct && (
                           <CheckCircle2 size={20} />
                         )}
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
-                  {answer !== null && (
+                  {practiceChecked && (
                     <div
-                      className={`answer-feedback ${answer === question.meaning ? "good" : ""}`}
+                      className={`answer-feedback ${practiceAnswer === (practiceDirection === "thai-to-japanese" ? practiceQuestion.japanese : practiceQuestion.meaning) ? "good" : ""}`}
                     >
                       <strong>
-                        {answer === question.meaning
+                        {practiceAnswer ===
+                        (practiceDirection === "thai-to-japanese"
+                          ? practiceQuestion.japanese
+                          : practiceQuestion.meaning)
                           ? "ตอบถูกต้อง"
-                          : `คำตอบที่ถูกคือ ${question.meaning}`}
+                          : `คำตอบที่ถูกคือ ${practiceDirection === "thai-to-japanese" ? practiceQuestion.japanese : practiceQuestion.meaning}`}
                       </strong>
                       <p>
-                        {question.example}
+                        {practiceQuestion.example}
                         <br />
-                        {question.translation}
+                        {practiceQuestion.translation}
                       </p>
-                      <Action
-                        onClick={() => {
-                          if (quizIndex + 1 === quizQuestions.length)
-                            setQuizDone(true);
-                          else {
-                            setQuizIndex((i) => i + 1);
-                            setAnswer(null);
-                          }
-                        }}
-                      >
-                        {quizIndex + 1 === quizQuestions.length
+                      <Action onClick={nextPracticeQuestion}>
+                        {practiceIndex + 1 === practiceQuestions.length
                           ? "ดูผลการฝึก"
                           : "ข้อถัดไป"}
                         <ArrowRight size={17} />
