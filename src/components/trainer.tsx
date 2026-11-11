@@ -171,6 +171,7 @@ export default function Trainer({ section }: { section: string }) {
     [flipped, setFlipped] = useState(false),
     [reviewed, setReviewed] = useState<string[]>([]),
     [allCards, setAllCards] = useState(false);
+  const [furigana, setFurigana] = useState(false);
   const [practiceBook, setPracticeBook] = useState("kotoba"),
     [practiceLevel, setPracticeLevel] = useState<Level>(levels[0]),
     [practiceDirection, setPracticeDirection] = useState<
@@ -945,6 +946,7 @@ export default function Trainer({ section }: { section: string }) {
                     lesson={l}
                     completed={progress.completed.includes(l.id)}
                     saved={progress.saved.includes(l.id)}
+                    furigana={furigana}
                     onOpen={() => setActive(l)}
                     onSave={() => save(l.id)}
                   />
@@ -1012,10 +1014,18 @@ export default function Trainer({ section }: { section: string }) {
                     <span
                       className={`flash-japanese ${flipped ? "thai-answer" : ""}`}
                     >
-                      {flipped ? card.meaning : card.japanese}
+                      {flipped ? (
+                        card.meaning
+                      ) : (
+                        <JapaneseWord
+                          furigana={furigana}
+                          reading={card.reading}
+                          text={card.japanese}
+                        />
+                      )}
                     </span>
                     <span className="flash-reading">
-                      {flipped ? card.example : card.reading}
+                      {flipped || furigana ? card.example : card.reading}
                     </span>
                     {flipped && (
                       <span className="muted">{card.translation}</span>
@@ -1200,11 +1210,17 @@ export default function Trainer({ section }: { section: string }) {
                     }
                     lang={practiceDirection === "thai-to-japanese" ? "th" : "ja"}
                   >
-                    {practiceDirection === "thai-to-japanese"
-                      ? practiceQuestion.meaning
-                      : practiceQuestion.japanese}
+                    {practiceDirection === "thai-to-japanese" ? (
+                      practiceQuestion.meaning
+                    ) : (
+                      <JapaneseWord
+                        furigana={furigana}
+                        reading={practiceQuestion.reading}
+                        text={practiceQuestion.japanese}
+                      />
+                    )}
                   </h2>
-                  {practiceDirection === "japanese-to-thai" && (
+                  {practiceDirection === "japanese-to-thai" && !furigana && (
                     <p className="quiz-reading">{practiceQuestion.reading}</p>
                   )}
                   <div className="quiz-options">
@@ -1591,6 +1607,17 @@ export default function Trainer({ section }: { section: string }) {
                     />{" "}
                     กิจกรรม / วัน
                   </label>
+                  <div className="setting-divider" />
+                  <h2>ฟุริงานะ</h2>
+                  <p>แสดงคำอ่านเหนือคำศัพท์ที่มีคันจิ</p>
+                  <label className="furigana-toggle">
+                    <input
+                      type="checkbox"
+                      checked={furigana}
+                      onChange={(e) => setFurigana(e.target.checked)}
+                    />
+                    แสดงฟุริงานะ
+                  </label>
                 </section>
                 <section className="panel">
                   <h2>เรียนได้ทุกที่</h2>
@@ -1859,8 +1886,14 @@ curl -H "Authorization: Bearer $KOTOBA_API_KEY" \
               </button>
             </div>
             <div className="modal-word">
-              <p>{active.reading}</p>
-              <h2 lang="ja">{active.japanese}</h2>
+              {!furigana && <p>{active.reading}</p>}
+              <h2 lang="ja">
+                <JapaneseWord
+                  furigana={furigana}
+                  reading={active.reading}
+                  text={active.japanese}
+                />
+              </h2>
               <h3>{active.meaning}</h3>
               <Action
                 variant="text"
@@ -2019,12 +2052,14 @@ function LevelTabs({
 function LessonCard({
   lesson: l,
   completed,
+  furigana,
   saved,
   onOpen,
   onSave,
 }: {
   lesson: Lesson;
   completed: boolean;
+  furigana: boolean;
   saved: boolean;
   onOpen: () => void;
   onSave: () => void;
@@ -2044,8 +2079,16 @@ function LessonCard({
         </button>
       </div>
       <button className="lesson-open" onClick={onOpen}>
-        <span className="lesson-reading">{l.reading || "会話"}</span>
-        <h2 lang="ja">{l.japanese}</h2>
+        {!furigana && (
+          <span className="lesson-reading">{l.reading || "会話"}</span>
+        )}
+        <h2 lang="ja">
+          <JapaneseWord
+            furigana={furigana}
+            reading={l.reading}
+            text={l.japanese}
+          />
+        </h2>
         <p>{l.meaning}</p>
         <span className="lesson-card-bottom">
           {completed ? (
@@ -2064,6 +2107,22 @@ function LessonCard({
         </span>
       </button>
     </article>
+  );
+}
+function JapaneseWord({
+  text,
+  reading,
+  furigana,
+}: {
+  text: string;
+  reading: string;
+  furigana: boolean;
+}) {
+  if (!furigana || !reading || !/\p{Script=Han}/u.test(text)) return text;
+  return (
+    <ruby className="furigana-word">
+      {text}<rt>{reading}</rt>
+    </ruby>
   );
 }
 function Empty({

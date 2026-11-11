@@ -1107,6 +1107,25 @@ m3e-button:not(:defined),
   font-family: var(--font-japanese);
   font-size: 12px;
 }
+.furigana-word rt {
+  color: var(--primary);
+  font-family: var(--font-japanese);
+  font-size: 0.5em;
+  font-weight: 400;
+}
+.furigana-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--secondary);
+  font-size: 14px;
+  cursor: pointer;
+}
+.furigana-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
 .lesson-card h2 {
   font-family: var(--font-japanese);
   font-size: 28px;
