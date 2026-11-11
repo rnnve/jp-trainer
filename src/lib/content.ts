@@ -49,8 +49,8 @@ export type PracticeWord = {
 };
 export type PracticeUnit = {
  id: string;
- lesson: number;
- exercise: number;
+ lesson: number | Level;
+ exercise: number | null;
  words: PracticeWord[];
 };
 export type PracticeBook = {
@@ -64,6 +64,21 @@ const unit = (lesson: number, exercise: number, words: [string, string, string][
  exercise,
  words: words.map(([japanese, reading, meaning], index) => ({
   id: `akiko-1-l${lesson}-r${exercise}-w${index + 1}`,
+  japanese,
+  reading,
+  meaning,
+ })),
+});
+const jlptUnit = (
+ kind: 'vocabulary' | 'kanji',
+ level: Level,
+ source: Record<Level, string[][]>,
+): PracticeUnit => ({
+ id: `jlpt-${kind}-${level}`,
+ lesson: level,
+ exercise: null,
+ words: source[level].map(([japanese, reading, meaning], index) => ({
+  id: `jlpt-${kind}-${level}-${index + 1}`,
   japanese,
   reading,
   meaning,
@@ -90,5 +105,13 @@ export const practiceBooks: PracticeBook[] = [{
   unit(2, 7, [['あそこ','あそこ','ที่นั่น'],['ありがとうございます','ありがとうございます','ขอบคุณมากค่ะ / ครับ'],['ここ','ここ','ที่นี่'],['すみません','すみません','ขอโทษค่ะ / ครับ'],['どうも','どうも','อย่างยิ่ง / มาก'],['どこ','どこ','ที่ไหน']]),
   unit(2, 8, [['えんぴつ','えんぴつ','ดินสอ'],['ペン','ペン','ปากกา']]),
  ],
+}, {
+ id: 'jlpt-vocabulary',
+ title: 'คำศัพท์ JLPT N5–N1',
+ units: levels.map((level) => jlptUnit('vocabulary', level, words)),
+}, {
+ id: 'jlpt-kanji',
+ title: 'คันจิ JLPT N5–N1',
+ units: levels.map((level) => jlptUnit('kanji', level, kanji)),
 }];
 export function contentStats() { return {total:lessons.length,byLevel:Object.fromEntries(levels.map(l=>[l,lessons.filter(x=>x.level===l).length])),byCategory:Object.fromEntries(Object.keys(categoryNames).map(c=>[c,lessons.filter(x=>x.category===c).length])),source:'original-seed-content',coverage:'Starter examples, not a complete JLPT syllabus. Level assignments are editorial, not official JLPT lists.',books:books.length}; }

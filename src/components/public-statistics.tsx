@@ -24,6 +24,9 @@ export default function PublicStatistics() {
           </span>
         </Link>
         <div className="public-header-actions">
+          <Link href="/about" className="account-sign-in">
+            เกี่ยวกับ
+          </Link>
           <AccountControls compact />
           <Link href="/hn/learn" className="owner-link">
             เริ่มเรียน

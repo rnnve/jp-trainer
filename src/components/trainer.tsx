@@ -1181,7 +1181,9 @@ export default function Trainer({ section }: { section: string }) {
                   {[...new Set(activePracticeBook.units.map((unit) => unit.lesson))].map(
                     (lesson) => (
                       <fieldset key={lesson}>
-                        <legend>บท {lesson}</legend>
+                        <legend>
+                          {typeof lesson === "number" ? `บท ${lesson}` : lesson}
+                        </legend>
                         <div>
                           {activePracticeBook.units
                             .filter((unit) => unit.lesson === lesson)
@@ -1199,7 +1201,9 @@ export default function Trainer({ section }: { section: string }) {
                                     resetTranslationPractice();
                                   }}
                                 />
-                                れんしゅう {unit.exercise}
+                                {unit.exercise === null
+                                  ? "คำศัพท์ทั้งหมด"
+                                  : `れんしゅう ${unit.exercise}`}
                                 <small>{unit.words.length} คำ</small>
                               </label>
                             ))}
