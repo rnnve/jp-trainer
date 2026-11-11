@@ -138,6 +138,19 @@ function download(name: string, data: unknown) {
   a.click();
   URL.revokeObjectURL(url);
 }
+function shuffle<T>(items: T[], seedText: string) {
+  let seed = [...seedText].reduce(
+    (value, character) => (value * 31 + character.charCodeAt(0)) >>> 0,
+    2166136261,
+  );
+  const result = [...items];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    const swapIndex = seed % (index + 1);
+    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+  }
+  return result;
+}
 
 export default function Trainer({ section }: { section: string }) {
   const router = useRouter();
@@ -181,6 +194,7 @@ export default function Trainer({ section }: { section: string }) {
       "thai-to-japanese" | "japanese-to-thai"
     >("thai-to-japanese"),
     [practiceIndex, setPracticeIndex] = useState(0),
+    [practiceShuffleSeed, setPracticeShuffleSeed] = useState(0),
     [practiceAnswer, setPracticeAnswer] = useState(""),
     [practiceChecked, setPracticeChecked] = useState(false),
     [practiceCorrect, setPracticeCorrect] = useState(0),
@@ -297,24 +311,29 @@ export default function Trainer({ section }: { section: string }) {
     .flatMap((unit) => unit.words);
   const practiceQuestion = practiceQuestions[practiceIndex];
   const practiceOptions = practiceQuestion
-    ? [
-        practiceDirection === "thai-to-japanese"
-          ? practiceQuestion.japanese
-          : practiceQuestion.meaning,
-        ...allPracticeWords
-          .filter((word) => word.id !== practiceQuestion.id)
-          .slice(0, 3)
-          .map((word) =>
-            practiceDirection === "thai-to-japanese"
-              ? word.japanese
-              : word.meaning,
-          ),
-      ].sort((a, b) => {
-        const score = (value: string) =>
-          [...value].reduce((total, char) => total + char.charCodeAt(0), 0) +
-          practiceIndex * 31;
-        return score(a) - score(b);
-      })
+    ? (() => {
+        const correctOption =
+          practiceDirection === "thai-to-japanese"
+            ? practiceQuestion.japanese
+            : practiceQuestion.meaning;
+        const distractors = [...new Set(
+          allPracticeWords
+            .map((word) =>
+              practiceDirection === "thai-to-japanese"
+                ? word.japanese
+                : word.meaning,
+            )
+            .filter((option) => option !== correctOption),
+        )];
+        const seed = `${practiceQuestion.id}-${practiceShuffleSeed}`;
+        return shuffle(
+          [
+            correctOption,
+            ...shuffle(distractors, `${seed}-distractors`).slice(0, 3),
+          ],
+          seed,
+        );
+      })()
     : [];
   const filtered = levelLessons.filter(
     (l) =>
@@ -340,6 +359,7 @@ export default function Trainer({ section }: { section: string }) {
     setPracticeChecked(false);
     setPracticeCorrect(0);
     setPracticeDone(false);
+    setPracticeShuffleSeed((seed) => seed + 1);
   }
   function save(id: string) {
     setProgress((p) => ({
@@ -410,6 +430,7 @@ export default function Trainer({ section }: { section: string }) {
     setPracticeIndex((i) => i + 1);
     setPracticeAnswer("");
     setPracticeChecked(false);
+    setPracticeShuffleSeed((seed) => seed + 1);
   }
   function speak(text: string) {
     if (!("speechSynthesis" in window)) {
