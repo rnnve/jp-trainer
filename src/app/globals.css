@@ -1312,6 +1312,54 @@ m3e-button:not(:defined),
   color: var(--secondary);
   font-size: 13px;
 }
+.practice-unit-picker {
+  grid-column: 1 / -1;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.practice-unit-picker > div:first-child {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.practice-unit-picker > div:first-child strong {
+  margin-right: auto;
+  color: var(--ink);
+  font-size: 14px;
+}
+.practice-unit-picker > div:first-child button {
+  padding: 5px 8px;
+  color: var(--primary);
+  font-size: 12px;
+}
+.practice-unit-picker fieldset {
+  margin-top: 14px;
+}
+.practice-unit-picker legend {
+  color: var(--ink);
+  font-weight: 600;
+}
+.practice-unit-picker fieldset > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.practice-unit-picker label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--secondary);
+  cursor: pointer;
+}
+.practice-unit-picker input { accent-color: var(--primary); }
+.practice-unit-picker small { color: var(--muted); }
 .practice-settings fieldset {
   grid-column: 1 / -1;
 }

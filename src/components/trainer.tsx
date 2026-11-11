@@ -58,6 +58,7 @@ import {
   contentStats,
   lessons,
   levels,
+  practiceBooks,
   type Category,
   type Lesson,
   type Level,
@@ -172,8 +173,10 @@ export default function Trainer({ section }: { section: string }) {
     [reviewed, setReviewed] = useState<string[]>([]),
     [allCards, setAllCards] = useState(false);
   const [furigana, setFurigana] = useState(false);
-  const [practiceBook, setPracticeBook] = useState("kotoba"),
-    [practiceLevel, setPracticeLevel] = useState<Level>(levels[0]),
+  const [practiceBook, setPracticeBook] = useState(practiceBooks[0].id),
+    [selectedPracticeUnits, setSelectedPracticeUnits] = useState<string[]>(
+      practiceBooks[0].units.map((unit) => unit.id),
+    ),
     [practiceDirection, setPracticeDirection] = useState<
       "thai-to-japanese" | "japanese-to-thai"
     >("thai-to-japanese"),
@@ -286,20 +289,25 @@ export default function Trainer({ section }: { section: string }) {
   const nextLesson =
     levelLessons.find((l) => !progress.completed.includes(l.id)) ??
     levelLessons[0];
-  const practiceQuestions = lessons.filter(
-    (l) => l.category === "vocabulary" && l.level === practiceLevel,
-  );
+  const activePracticeBook =
+    practiceBooks.find((book) => book.id === practiceBook) ?? practiceBooks[0];
+  const allPracticeWords = activePracticeBook.units.flatMap((unit) => unit.words);
+  const practiceQuestions = activePracticeBook.units
+    .filter((unit) => selectedPracticeUnits.includes(unit.id))
+    .flatMap((unit) => unit.words);
   const practiceQuestion = practiceQuestions[practiceIndex];
   const practiceOptions = practiceQuestion
     ? [
         practiceDirection === "thai-to-japanese"
           ? practiceQuestion.japanese
           : practiceQuestion.meaning,
-        ...practiceQuestions
-          .filter((l) => l.id !== practiceQuestion.id)
+        ...allPracticeWords
+          .filter((word) => word.id !== practiceQuestion.id)
           .slice(0, 3)
-          .map((l) =>
-            practiceDirection === "thai-to-japanese" ? l.japanese : l.meaning,
+          .map((word) =>
+            practiceDirection === "thai-to-japanese"
+              ? word.japanese
+              : word.meaning,
           ),
       ].sort((a, b) => {
         const score = (value: string) =>
@@ -1104,38 +1112,81 @@ export default function Trainer({ section }: { section: string }) {
               />
               <div className="practice-settings" aria-label="ตั้งค่าการฝึกคำศัพท์">
                 <label>
-                  หนังสือ / ชุดคำศัพท์
+                  หนังสือ
                   <select
                     value={practiceBook}
                     onChange={(e) => {
                       setPracticeBook(e.target.value);
+                      const selectedBook = practiceBooks.find(
+                        (book) => book.id === e.target.value,
+                      );
+                      setSelectedPracticeUnits(
+                        selectedBook?.units.map((unit) => unit.id) ?? [],
+                      );
                       resetTranslationPractice();
                     }}
                   >
-                    <option value="kotoba">Kotoba: คำศัพท์ JLPT เริ่มต้น</option>
-                    {books.map((book) => (
-                      <option key={book.isbn} disabled value={book.isbn}>
-                        {book.title} (ยังไม่มีบทสำหรับฝึก)
+                    {practiceBooks.map((book) => (
+                      <option key={book.id} value={book.id}>
+                        {book.title}
                       </option>
                     ))}
                   </select>
                 </label>
-                <label>
-                  บท
-                  <select
-                    value={practiceLevel}
-                    onChange={(e) => {
-                      setPracticeLevel(e.target.value as Level);
-                      resetTranslationPractice();
-                    }}
-                  >
-                    {levels.map((item) => (
-                      <option key={item} value={item}>
-                        บทคำศัพท์ {item}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <div className="practice-unit-picker">
+                  <div>
+                    <strong>เลือกบทและ れんしゅう</strong>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedPracticeUnits(
+                          activePracticeBook.units.map((unit) => unit.id),
+                        );
+                        resetTranslationPractice();
+                      }}
+                    >
+                      เลือกทั้งหมด
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedPracticeUnits([]);
+                        resetTranslationPractice();
+                      }}
+                    >
+                      ล้าง
+                    </button>
+                  </div>
+                  {[...new Set(activePracticeBook.units.map((unit) => unit.lesson))].map(
+                    (lesson) => (
+                      <fieldset key={lesson}>
+                        <legend>บท {lesson}</legend>
+                        <div>
+                          {activePracticeBook.units
+                            .filter((unit) => unit.lesson === lesson)
+                            .map((unit) => (
+                              <label key={unit.id}>
+                                <input
+                                  type="checkbox"
+                                  checked={selectedPracticeUnits.includes(unit.id)}
+                                  onChange={(e) => {
+                                    setSelectedPracticeUnits((current) =>
+                                      e.target.checked
+                                        ? [...current, unit.id]
+                                        : current.filter((id) => id !== unit.id),
+                                    );
+                                    resetTranslationPractice();
+                                  }}
+                                />
+                                れんしゅう {unit.exercise}
+                                <small>{unit.words.length} คำ</small>
+                              </label>
+                            ))}
+                        </div>
+                      </fieldset>
+                    ),
+                  )}
+                </div>
                 <fieldset>
                   <legend>ทิศทางการแปล</legend>
                   <div className="practice-direction">
@@ -1168,7 +1219,19 @@ export default function Trainer({ section }: { section: string }) {
                   </div>
                 </fieldset>
               </div>
-              {practiceDone ? (
+              {practiceQuestions.length === 0 ? (
+                <Empty
+                  title="ยังไม่ได้เลือก れんしゅう"
+                  text="เลือกอย่างน้อยหนึ่ง れんしゅう เพื่อเริ่มฝึกคำศัพท์"
+                  action="เลือกทั้งหมด"
+                  onClick={() => {
+                    setSelectedPracticeUnits(
+                      activePracticeBook.units.map((unit) => unit.id),
+                    );
+                    resetTranslationPractice();
+                  }}
+                />
+              ) : practiceDone ? (
                 <div className="quiz-result">
                   <span className="small-label">結果 / ผลการฝึก</span>
                   <h2>ผลการฝึกคำศัพท์</h2>
@@ -1267,9 +1330,9 @@ export default function Trainer({ section }: { section: string }) {
                           : `คำตอบที่ถูกคือ ${practiceDirection === "thai-to-japanese" ? practiceQuestion.japanese : practiceQuestion.meaning}`}
                       </strong>
                       <p>
-                        {practiceQuestion.example}
+                        คำอ่าน: <span lang="ja">{practiceQuestion.reading}</span>
                         <br />
-                        {practiceQuestion.translation}
+                        ความหมาย: {practiceQuestion.meaning}
                       </p>
                       <Action onClick={nextPracticeQuestion}>
                         {practiceIndex + 1 === practiceQuestions.length
