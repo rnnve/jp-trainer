@@ -172,7 +172,7 @@ export default function Trainer({ section }: { section: string }) {
     [reviewed, setReviewed] = useState<string[]>([]),
     [allCards, setAllCards] = useState(false);
   const [practiceBook, setPracticeBook] = useState("kotoba"),
-    [practiceLevel, setPracticeLevel] = useState<Level>(level),
+    [practiceLevel, setPracticeLevel] = useState<Level>(levels[0]),
     [practiceDirection, setPracticeDirection] = useState<
       "thai-to-japanese" | "japanese-to-thai"
     >("thai-to-japanese"),
