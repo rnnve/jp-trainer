@@ -1344,6 +1344,10 @@ export default function Trainer({ section }: { section: string }) {
                         (practiceDirection === "thai-to-japanese"
                           ? practiceQuestion.japanese
                           : practiceQuestion.meaning);
+                      const optionWord =
+                        practiceDirection === "thai-to-japanese"
+                          ? allPracticeWords.find((word) => word.japanese === option)
+                          : undefined;
                       return (
                       <button
                         key={option}
@@ -1360,7 +1364,15 @@ export default function Trainer({ section }: { section: string }) {
                         }
                       >
                         <span>{i + 1}</span>
-                        {option}
+                        {optionWord ? (
+                          <JapaneseWord
+                            furigana={furigana}
+                            reading={optionWord.reading}
+                            text={option}
+                          />
+                        ) : (
+                          option
+                        )}
                         {practiceChecked && correct && (
                           <CheckCircle2 size={20} />
                         )}
