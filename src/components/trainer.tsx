@@ -170,6 +170,21 @@ export default function Trainer({ section }: { section: string }) {
     [reviewed, setReviewed] = useState<string[]>([]),
     [allCards, setAllCards] = useState(false);
   const [furigana, setFurigana] = useState(false);
+  useEffect(() => {
+    try {
+      setFurigana(localStorage.getItem("kotoba.furigana.v1") === "true");
+    } catch {
+      // Keep the default when browser storage is unavailable.
+    }
+  }, []);
+  function updateFurigana(enabled: boolean) {
+    setFurigana(enabled);
+    try {
+      localStorage.setItem("kotoba.furigana.v1", String(enabled));
+    } catch {
+      // The setting still applies to the current screen.
+    }
+  }
   const [practiceBook, setPracticeBook] = useState(practiceBooks[0].id),
     [selectedPracticeUnits, setSelectedPracticeUnits] = useState<string[]>(
       practiceBooks[0].units.map((unit) => unit.id),
@@ -1745,7 +1760,7 @@ export default function Trainer({ section }: { section: string }) {
                     <input
                       type="checkbox"
                       checked={furigana}
-                      onChange={(e) => setFurigana(e.target.checked)}
+                      onChange={(e) => updateFurigana(e.target.checked)}
                     />
                     แสดงฟุริงานะ
                   </label>
