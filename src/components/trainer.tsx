@@ -1397,9 +1397,9 @@ export default function Trainer({ section }: { section: string }) {
                   </div>
                   {practiceChecked && (
                     <div
-                      className={`answer-feedback ${practiceAnswer === (practiceDirection === "thai-to-japanese" ? practiceQuestion.japanese : practiceQuestion.meaning) ? "good" : ""}`}
+                      className={`answer-feedback practice-feedback ${practiceAnswer === (practiceDirection === "thai-to-japanese" ? practiceQuestion.japanese : practiceQuestion.meaning) ? "good" : ""}`}
                     >
-                      <strong>
+                      <strong role="status">
                         {practiceAnswer ===
                         (practiceDirection === "thai-to-japanese"
                           ? practiceQuestion.japanese
