@@ -5,14 +5,16 @@ export function clerkConfigured(): boolean {
   );
 }
 export function safeReturnTo(value: unknown): string {
+  if (typeof value === "string")
+    value = value.replace(/^\/(?:hn|dash|dashboard)(?=\/|$)/, "/-");
   if (
     typeof value !== "string" ||
-    !/^\/hn(?:\/|$)/.test(value) ||
+    !/^\/-(?:\/|$)/.test(value) ||
     value.includes("\\") ||
     value.includes("%") ||
-    /^\/hn\/(api|login|register)(?:\/|\?|$)/.test(value)
+    /^\/-\/(api|login|register)(?:\/|\?|$)/.test(value)
   )
-    return "/hn/learn";
+    return "/-/learn";
   return value;
 }
 export function authorizedParties(): string[] {

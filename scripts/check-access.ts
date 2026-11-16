@@ -32,22 +32,30 @@ try {
     "library",
     "flashcards",
     "practice",
+    "kana",
     "conversations",
     "statistics",
     "books",
     "settings",
     "api",
   ]) {
-    const response = await fetch(base + "/hn/" + section, {
+    const response = await fetch(base + "/-/" + section, {
       redirect: "manual",
     });
     assert.equal(response.status, 200, section);
-    assert.notEqual(response.headers.get("location"), "/hn/login");
+    assert.notEqual(response.headers.get("location"), "/-/login");
   }
   assert.equal(
-    (await fetch(base + "/hn", { redirect: "manual" })).headers.get("location"),
-    "/hn/learn",
+    (await fetch(base + "/-", { redirect: "manual" })).headers.get("location"),
+    "/-/learn",
   );
+  for (const alias of ["hn", "dash", "dashboard"]) {
+    for (const suffix of ["", "/library", "/kana", "/settings", "/login", "/register", "/api/auth/session"]) {
+      const response = await fetch(`${base}/${alias}${suffix}?q=test`, { redirect: "manual" });
+      assert.equal(response.status, 308);
+      assert.equal(response.headers.get("location"), `/-${suffix || "/learn"}?q=test`);
+    }
+  }
   for (const path of [
     "/api/v1/me",
     "/api/v1/me/progress",
@@ -107,17 +115,17 @@ try {
   assert.equal(stats.data.total, 50);
   assert(!("learning" in stats));
   assert.equal(
-    (await fetch(base + "/hn/api/statistics", { method: "PUT" })).status,
+    (await fetch(base + "/-/api/statistics", { method: "PUT" })).status,
     410,
   );
-  assert.equal((await fetch(base + "/hn/api/auth/session")).status, 410);
-  for (const path of ["/hn/login", "/hn/register"]) {
+  assert.equal((await fetch(base + "/-/api/auth/session")).status, 410);
+  for (const path of ["/-/login", "/-/register"]) {
     const response = await fetch(base + path);
     assert.equal(response.status, 200);
     assert((await response.text()).includes("ผู้เยี่ยมชม"));
   }
   const legacy = await fetch(base + "/library?q=test", { redirect: "manual" });
-  assert.equal(legacy.headers.get("location"), "/hn/library?q=test");
+  assert.equal(legacy.headers.get("location"), "/-/library?q=test");
   console.log(
     "Access checks passed: all trainer pages public; account APIs reject missing/forged authentication with private no-store and no public CORS; public catalog remains public; old owner publishing/Auth.js retired; guest login/register fallback works.",
   );

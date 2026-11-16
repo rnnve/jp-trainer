@@ -3,7 +3,7 @@ export function GET() {
   return Response.json(
     {
       error: "GitHub OAuth has been replaced with Clerk.",
-      signIn: "/hn/login",
+      signIn: "/-/login",
     },
     { status: 410, headers: { "Cache-Control": "no-store" } },
   );

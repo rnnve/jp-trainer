@@ -6,7 +6,7 @@ export const metadata = { title: "เกี่ยวกับ Kotoba" };
 export default function AboutPage() {
   return (
     <main className="about-page">
-      <Link className="about-brand" href="/hn/learn">
+      <Link className="about-brand" href="/-/learn">
         <BookOpen size={25} /> kotoba.
       </Link>
       <section className="about-card">
@@ -23,7 +23,7 @@ export default function AboutPage() {
           เพื่อให้การฝึกภาษาญี่ปุ่นเริ่มต้นได้ง่ายและยืดหยุ่น
         </p>
         <div className="about-actions">
-          <Link href="/hn/learn">เริ่มฝึกคำศัพท์</Link>
+          <Link href="/-/learn">เริ่มฝึกคำศัพท์</Link>
           <a href="https://github.com/rnnve/jp-trainer" target="_blank" rel="noreferrer">
             <Code2 size={17} /> ดูโค้ดบน GitHub
           </a>

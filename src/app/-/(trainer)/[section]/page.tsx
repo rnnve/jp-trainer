@@ -5,6 +5,7 @@ const sections = [
   "library",
   "flashcards",
   "practice",
+  "kana",
   "conversations",
   "statistics",
   "books",

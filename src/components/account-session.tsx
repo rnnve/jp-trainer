@@ -45,7 +45,7 @@ export function AccountControls({ compact = false }: { compact?: boolean }) {
     );
   return (
     <Link
-      href={`/hn/login?returnTo=${encodeURIComponent(pathname)}`}
+      href={`/-/login?returnTo=${encodeURIComponent(pathname)}`}
       className={compact ? "account-sign-in" : "nav-item"}
     >
       <LogIn />

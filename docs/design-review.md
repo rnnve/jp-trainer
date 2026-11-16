@@ -2,7 +2,7 @@
 
 > Historical design review. The later account migration makes every trainer page public, replaces owner GitHub OAuth with optional Clerk accounts, and keeps account data private. See README.md for the current authentication and API behavior.
 
-Direction approved by the user: a personal Japanese study notebook, with public statistics and private practice under `/hn`.
+Direction approved by the user: a personal Japanese study notebook, with public statistics and practice under `/-` (aliases: `/dash`, `/dashboard`, and the legacy `/hn`).
 
 This review and its nine-pass process are informed by **unslop**, created by **Damir Sokolovsky ([@heydamir](https://x.com/heydamir))**, licensed **CC BY 4.0**. [Original skill](https://heydamir.design/unslop). The user's requirements for Material 3 Expressive, `@m3e/web`, and a gradient on the main learning surface take precedence over the skill's general preference against hue gradients.
 

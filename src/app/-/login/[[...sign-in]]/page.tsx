@@ -37,8 +37,8 @@ export default async function Login({
         {clerkConfigured() ? (
           <SignIn
             routing="path"
-            path="/hn/login"
-            signUpUrl="/hn/register"
+            path="/-/login"
+            signUpUrl="/-/register"
             forceRedirectUrl={target}
           />
         ) : (

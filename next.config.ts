@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
   allowedDevOrigins: ["100.119.174.10"],
+  async redirects() {
+    return ["hn", "dash", "dashboard"].flatMap((alias) => [
+      { source: `/${alias}`, destination: "/-/learn", permanent: true },
+      { source: `/${alias}/:path*`, destination: "/-/:path*", permanent: true },
+    ]);
+  },
   async rewrites() {
     return {
       beforeFiles:
@@ -12,7 +18,7 @@ const config: NextConfig = {
   async headers() {
     return [
       {
-        source: "/hn/:path*",
+        source: "/-/:path*",
         headers: [{ key: "Cache-Control", value: "private, no-store" }],
       },
       {

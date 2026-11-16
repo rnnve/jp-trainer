@@ -14,7 +14,7 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-เปิด http://localhost:3000/hn/learn เรียนได้ทันทีโดยไม่ต้องมี Clerk keys ความก้าวหน้าเดิมแบบ local ยังคงอ่านจาก `kotoba.progress.v1`
+เปิด http://localhost:3000/-/learn เรียนได้ทันทีโดยไม่ต้องมี Clerk keys ความก้าวหน้าเดิมแบบ local ยังคงอ่านจาก `kotoba.progress.v1`
 
 ถ้า port 3000 มีโปรเจกต์อื่นใช้อยู่ ให้รัน `bun run dev --port 3002` และตั้ง `APP_URL` / `CLERK_AUTHORIZED_PARTIES` ให้ตรงกับ port นั้น (dev server ในรอบงานนี้เปิดค้างไว้ที่ http://localhost:3002)
 
@@ -43,8 +43,8 @@ bun run start
 
 Auth.js, owner GitHub ID, Client ID/Secret เดิม และ owner-only callbacks ถูกถอดออกแล้ว Clerk จัดการ sign-in, sign-up, sign-out และโปรไฟล์ผ่าน UI ของ Clerk
 
-- `/hn/login` — เข้าสู่ระบบด้วย Clerk
-- `/hn/register` — สร้างบัญชีด้วย Clerk
+- `/-/login` — เข้าสู่ระบบด้วย Clerk
+- `/-/register` — สร้างบัญชีด้วย Clerk
 - ทุกหน้าฝึกยังเปิดให้ guest แม้ตั้งค่า Clerk ไม่ครบ หน้า login มีทางเลือกเรียนต่อโดยไม่สมัคร
 - `src/proxy.ts` เรียก `clerkMiddleware()` เพื่ออ่าน session โดยไม่ protect หน้าฝึก ตรวจสิทธิ์จริงที่ account API
 - Account API ยอมรับ Clerk **session tokens** หรือ API key ที่สร้างจากบัญชี ไม่ยอมรับ user ID จาก query, body หรือ custom header เป็นหลักฐานยืนยันตัวตน
@@ -55,7 +55,7 @@ Auth.js, owner GitHub ID, Client ID/Secret เดิม และ owner-only cal
 
 ### ผู้เยี่ยมชม
 
-ความก้าวหน้าบันทึกใน localStorage ของเบราว์เซอร์ปัจจุบัน ไม่เรียก account API และไม่ส่งไปยังคลังข้อมูลสาธารณะ ส่งออก/นำเข้า JSON ได้ที่ `/hn/settings`
+ความก้าวหน้าบันทึกใน localStorage ของเบราว์เซอร์ปัจจุบัน ไม่เรียก account API และไม่ส่งไปยังคลังข้อมูลสาธารณะ ส่งออก/นำเข้า JSON ได้ที่ `/-/settings`
 
 ### ผู้ใช้บัญชี
 
@@ -69,17 +69,20 @@ Auth.js, owner GitHub ID, Client ID/Secret เดิม และ owner-only cal
 - Dev ใช้ไฟล์แยกบัญชีใน `.data/accounts/` (hash ของ user ID; directory ถูก ignore)
 - Production ใช้ Redis เท่านั้น ถ้ายังไม่ตั้ง storage API จะคืน 503 และหน้าเรียนยังรักษา local cache ไว้ ไม่แกล้งรายงานว่าซิงก์สำเร็จ
 
-ไม่มีการแชร์คำตอบ, bookmarks, review schedule, อีเมล หรือข้อมูลบัญชีไปยัง public stats เก่า `/hn/api/statistics` หยุดรับการเขียนแล้ว (410)
+ไม่มีการแชร์คำตอบ, bookmarks, review schedule, อีเมล หรือข้อมูลบัญชีไปยัง public stats เก่า `/-/api/statistics` หยุดรับการเขียนแล้ว (410)
 
 ## เส้นทางหน้าเรียน
 
-`/hn` → `/hn/learn`; ทุกหน้าต่อไปนี้ไม่ต้องล็อกอิน:
+`/-` → `/-/learn`; ทุกหน้าต่อไปนี้ไม่ต้องล็อกอิน:
 
-- `/hn/learn`, `/hn/library`, `/hn/flashcards`
-- `/hn/practice`, `/hn/conversations`, `/hn/statistics`
-- `/hn/books`, `/hn/settings`, `/hn/api`
+`/dash`, `/dashboard` และ `/hn` เปลี่ยนเส้นทางไป `/-/learn`; เส้นทางย่อยและ query เดิมยังใช้ได้ เช่น `/dashboard/kana` → `/-/kana`
 
-เส้นทางเดิม เช่น `/learn` redirect ไป `/hn/learn`; `/statistics` redirect ไป `/`
+- `/-/learn`, `/-/library`, `/-/flashcards`
+- `/-/practice`, `/-/conversations`, `/-/statistics`
+- `/-/kana` — ฝึกอ่านฮิรางานะ คาตาคานะ หรือรวมทั้งสองชุด ครั้งละ 10 ข้อ (ตัวอักษรพื้นฐานชุดละ 46 ตัว)
+- `/-/books`, `/-/settings`, `/-/api`
+
+เส้นทางเดิม เช่น `/learn` redirect ไป `/-/learn`; `/statistics` redirect ไป `/`
 
 ## Account API: ข้อมูลของบัญชีที่ยืนยันตัวตน
 
@@ -132,7 +135,7 @@ HTTP status: 401 ไม่ได้เข้าสู่ระบบ, 403 Origin
 
 ## API keys และการหมุนเวียน
 
-เข้าสู่ระบบด้วย Clerk แล้วเปิด `/hn/api` เพื่อสร้าง หมุนเวียน หรือยกเลิกคีย์ ระบบแสดง secret เต็มเฉพาะตอนสร้างและหมุนเวียน เก็บ secret ในที่ปลอดภัยก่อนปิดข้อความ ไม่มีการเก็บคีย์ใน localStorage
+เข้าสู่ระบบด้วย Clerk แล้วเปิด `/-/api` เพื่อสร้าง หมุนเวียน หรือยกเลิกคีย์ ระบบแสดง secret เต็มเฉพาะตอนสร้างและหมุนเวียน เก็บ secret ในที่ปลอดภัยก่อนปิดข้อความ ไม่มีการเก็บคีย์ใน localStorage
 
 - คีย์ผูกกับบัญชีผู้สร้างและใช้กับ personal endpoints ในตารางด้านบนเท่านั้น ไม่ใช้ user ID จากผู้เรียก
 - `read` (ค่าเริ่มต้น): อ่านโปรไฟล์ ความก้าวหน้า สถิติ และ export
@@ -190,7 +193,7 @@ Public endpoints อ่านอย่างเดียว และเปิ�
 - `9789744436955` อะกิโกะโตะโทะโมะดะจิ 1 ฉบับปรับปรุง ([TPA Book](https://tpabook.com/product/akiko-to-tomodachi-1/))
 - `9789749569412` มินนะ โนะ นิฮงโกะ 1 (ผู้ใช้ยืนยัน)
 
-PWA ติดตั้งผ่าน browser หรือ settings ได้ ใช้ HTTPS/localhost ใน production; cache เฉพาะ static assets และหน้า offline ไม่ cache หน้า `/hn`, RSC หรือ account APIs การเปิดบทเรียนครั้งใหม่และซิงก์บัญชีต้องออนไลน์ ความก้าวหน้า local ยังคงอยู่เมื่อ network มีปัญหา
+PWA ติดตั้งผ่าน browser หรือ settings ได้ ใช้ HTTPS/localhost ใน production; cache เฉพาะ static assets และหน้า offline ไม่ cache หน้า `/-`, RSC หรือ account APIs การเปิดบทเรียนครั้งใหม่และซิงก์บัญชีต้องออนไลน์ ความก้าวหน้า local ยังคงอยู่เมื่อ network มีปัญหา
 
 Dev ใช้ cleanup worker เพื่อเลี่ยง cache เก่ารบกวน Hot Reload; ฟอนต์มี system fallback
 
@@ -214,7 +217,7 @@ src/components/api-key-manager.tsx One-time secret display and key controls
 src/lib/account-store.ts           Namespaced Redis/dev files + revision CAS
 src/lib/learner-cache.ts            Separate guest/account browser keys
 src/app/api/v1/me/                  Personal APIs
-src/app/hn/(trainer)/               Public learning screens
+src/app/-/(trainer)/               Public learning screens
 ```
 
 โค้ด MIT; บทเรียนต้นฉบับ CC0 ดู [LICENSE](LICENSE), [CONTENT-LICENSE.md](CONTENT-LICENSE.md), [CONTRIBUTING.md](CONTRIBUTING.md)

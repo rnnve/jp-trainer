@@ -40,11 +40,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   );
   return clerkConfigured() ? (
     <ClerkProvider
-      signInUrl="/hn/login"
-      signUpUrl="/hn/register"
-      signInFallbackRedirectUrl="/hn/learn"
-      signUpFallbackRedirectUrl="/hn/learn"
-      afterSignOutUrl="/hn/learn"
+      signInUrl="/-/login"
+      signUpUrl="/-/register"
+      signInFallbackRedirectUrl="/-/learn"
+      signUpFallbackRedirectUrl="/-/learn"
+      afterSignOutUrl="/-/learn"
       appearance={{
         variables: {
           colorPrimary: "#f4f4f5",

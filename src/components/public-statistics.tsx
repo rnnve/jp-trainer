@@ -28,7 +28,7 @@ export default function PublicStatistics() {
             เกี่ยวกับ
           </Link>
           <AccountControls compact />
-          <Link href="/hn/learn" className="owner-link">
+          <Link href="/-/learn" className="owner-link">
             เริ่มเรียน
             <ArrowRight />
           </Link>
@@ -48,7 +48,7 @@ export default function PublicStatistics() {
               <br />
               ทุกคนเรียนได้ทั้งแบบผู้เยี่ยมชมและบัญชีส่วนตัว
             </p>
-            <Link className="text-link public-view-badge" href="/hn/learn">
+            <Link className="text-link public-view-badge" href="/-/learn">
               เรียนได้โดยไม่ต้องสมัคร <ArrowRight />
             </Link>
           </div>
@@ -134,7 +134,7 @@ export default function PublicStatistics() {
                 เปิดเรียนได้ทันที ความก้าวหน้าบันทึกในเบราว์เซอร์นี้
                 และส่งออกเป็นไฟล์ได้
               </p>
-              <Link className="text-link" href="/hn/learn">
+              <Link className="text-link" href="/-/learn">
                 เริ่มเรียนโดยไม่เข้าสู่ระบบ
                 <ArrowRight />
               </Link>
@@ -145,7 +145,7 @@ export default function PublicStatistics() {
                 ใช้ Clerk เข้าสู่ระบบเพื่อเก็บความก้าวหน้าข้ามอุปกรณ์
                 และเรียกข้อมูลส่วนตัวผ่าน API
               </p>
-              <Link className="text-link" href="/hn/login">
+              <Link className="text-link" href="/-/login">
                 เข้าสู่ระบบหรือสร้างบัญชี
                 <ArrowRight />
               </Link>
@@ -186,7 +186,7 @@ export default function PublicStatistics() {
             kotoba. <span>เรียนได้ทุกคน · โค้ดเปิดเผย</span>
           </span>
           <span>ข้อมูลบัญชีเป็นส่วนตัว</span>
-          <Link href="/hn/api">
+          <Link href="/-/api">
             Developer API
             <ArrowRight />
           </Link>

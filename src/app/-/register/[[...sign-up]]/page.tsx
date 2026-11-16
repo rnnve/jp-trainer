@@ -10,10 +10,10 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 export default async function Register() {
-  if (await accountId()) redirect("/hn/learn");
+  if (await accountId()) redirect("/-/learn");
   return (
     <main className="login-page">
-      <Link href="/hn/learn" className="login-back">
+      <Link href="/-/learn" className="login-back">
         <ArrowLeft />
         เรียนต่อแบบผู้เยี่ยมชม
       </Link>
@@ -24,16 +24,16 @@ export default async function Register() {
         {clerkConfigured() ? (
           <SignUp
             routing="path"
-            path="/hn/register"
-            signInUrl="/hn/login"
-            forceRedirectUrl="/hn/learn"
+            path="/-/register"
+            signInUrl="/-/login"
+            forceRedirectUrl="/-/learn"
           />
         ) : (
           <div className="login-message" role="status">
             ระบบบัญชียังไม่ได้ตั้งค่า Clerk คุณยังเรียนแบบผู้เยี่ยมชมได้
           </div>
         )}
-        <Link className="text-link guest-continue" href="/hn/learn">
+        <Link className="text-link guest-continue" href="/-/learn">
           เรียนต่อโดยไม่สร้างบัญชี
         </Link>
       </section>

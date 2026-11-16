@@ -3,6 +3,7 @@ import { act } from "react";
 import { create, type ReactTestRenderer } from "react-test-renderer";
 import ApiKeyManager from "../src/components/api-key-manager";
 import { LearnerSessionContext } from "../src/components/account-session";
+import { Select } from "../src/components/ui/select";
 import {
   keyMetadata,
   newKeyMaterial,
@@ -86,9 +87,19 @@ test("key manager rotates with the listed version, hides revoked secrets and cle
         ?.props.onChange({ target: { value: "Script" } });
     });
     await act(async () => {
+      const [scope, expiry] = renderer.root.findAllByType(Select);
+      scope.props.onValueChange("read-write");
+      expiry.props.onValueChange(365);
+    });
+    await act(async () => {
       renderer.root.findByType("form").props.onSubmit({ preventDefault() {} });
     });
     await flush();
+    expect(JSON.parse(calls.find((call) => call.init?.method === "POST")!.init!.body as string)).toEqual({
+      name: "Script",
+      scope: "read-write",
+      expiresInDays: 365,
+    });
     expect(JSON.stringify(renderer.toJSON())).toContain("first-secret");
     await act(async () => {
       renderer.root

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Copy, KeyRound, RotateCcw, Trash2, X } from "lucide-react";
 import { AccountControls, useLearnerSession } from "./account-session";
 import type { ApiKeyMetadata } from "@/lib/api-key-crypto";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 export default function ApiKeyManager() {
   const session = useLearnerSession();
   if (!session.ready)
@@ -146,29 +147,40 @@ function SignedInKeys() {
             autoComplete="off"
           />
         </label>
-        <label>
-          สิทธิ์
-          <select
+        <div className="select-field">
+          <label htmlFor="api-key-scope">สิทธิ์</label>
+          <Select
             value={scope}
-            onChange={(event) =>
-              setScope(event.target.value as "read" | "read-write")
+            items={[
+              { value: "read", label: "อ่านข้อมูลเท่านั้น" },
+              { value: "read-write", label: "อ่านและบันทึกความก้าวหน้า" },
+            ]}
+            onValueChange={(value) =>
+              value && setScope(value as "read" | "read-write")
             }
           >
-            <option value="read">อ่านข้อมูลเท่านั้น</option>
-            <option value="read-write">อ่านและบันทึกความก้าวหน้า</option>
-          </select>
-        </label>
-        <label>
-          หมดอายุ
-          <select
+            <SelectTrigger id="api-key-scope"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="read">อ่านข้อมูลเท่านั้น</SelectItem>
+              <SelectItem value="read-write">อ่านและบันทึกความก้าวหน้า</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="select-field">
+          <label htmlFor="api-key-expiry">หมดอายุ</label>
+          <Select
             value={days}
-            onChange={(event) => setDays(Number(event.target.value))}
+            items={[30, 90, 365].map((value) => ({ value, label: `${value} วัน` }))}
+            onValueChange={(value) => value !== null && setDays(value)}
           >
-            <option value={30}>30 วัน</option>
-            <option value={90}>90 วัน</option>
-            <option value={365}>365 วัน</option>
-          </select>
-        </label>
+            <SelectTrigger id="api-key-expiry"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {[30, 90, 365].map((value) => (
+                <SelectItem key={value} value={value}>{value} วัน</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <button
           className="fallback"
           type="submit"

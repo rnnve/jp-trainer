@@ -8,8 +8,10 @@ import {
 } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import ApiKeyManager from "@/components/api-key-manager";
+import KanaPractice from "@/components/kana-practice";
 import {
   AccountControls,
   useLearnerSession,
@@ -21,7 +23,6 @@ import {
   BookOpen,
   Bookmark,
   Check,
-  ChevronDown,
   ChevronRight,
   Code2,
   Download,
@@ -49,6 +50,7 @@ import {
   Clock,
   Keyboard,
   Library,
+  Languages,
 } from "lucide-react";
 import {
   books,
@@ -92,6 +94,7 @@ const nav = [
   { path: "library", label: "คลังบทเรียน", icon: BookOpen },
   { path: "flashcards", label: "แฟลชการ์ด", icon: Layers },
   { path: "practice", label: "แบบฝึกหัด", icon: Keyboard },
+  { path: "kana", label: "ฝึกฮิรางานะ / คาตาคานะ", icon: Languages },
   { path: "conversations", label: "ฝึกฟังและสนทนา", icon: Headphones },
   { path: "statistics", label: "สถิติของฉัน", icon: ChartNoAxesCombined },
 ];
@@ -100,6 +103,7 @@ const titles: Record<string, string> = {
   library: "คลังบทเรียน",
   flashcards: "แฟลชการ์ด",
   practice: "แบบฝึกหัด",
+  kana: "ฝึกฮิรางานะ / คาตาคานะ",
   conversations: "ฝึกฟังและสนทนา",
   statistics: "สถิติการเรียนของฉัน",
   books: "หนังสืออ้างอิง",
@@ -169,10 +173,10 @@ export default function Trainer({ section }: { section: string }) {
     [flipped, setFlipped] = useState(false),
     [reviewed, setReviewed] = useState<string[]>([]),
     [allCards, setAllCards] = useState(false);
-  const [furigana, setFurigana] = useState(false);
+  const [furigana, setFurigana] = useState(true);
   useEffect(() => {
     try {
-      setFurigana(localStorage.getItem("kotoba.furigana.v1") === "true");
+      setFurigana(localStorage.getItem("kotoba.furigana.v1") !== "false");
     } catch {
       // Keep the default when browser storage is unavailable.
     }
@@ -497,7 +501,7 @@ export default function Trainer({ section }: { section: string }) {
     synth.speak(utterance);
   }
   function libraryCategory(c: Category) {
-    navigate(`/hn/library?category=${c}`);
+    navigate(`/-/library?category=${c}`);
   }
   async function installApp() {
     if (install) {
@@ -555,7 +559,7 @@ export default function Trainer({ section }: { section: string }) {
           <X size={22} />
         </button>
         <Link
-          href="/hn/learn"
+          href="/-/learn"
           className="brand"
           aria-label="Kotoba พื้นที่เรียน"
         >
@@ -573,7 +577,7 @@ export default function Trainer({ section }: { section: string }) {
             <Link
               key={n.path}
               className={`nav-item ${section === n.path ? "selected" : ""}`}
-              href={`/hn/${n.path}`}
+              href={`/-/${n.path}`}
             >
               <n.icon size={21} />
               <span>{n.label}</span>
@@ -593,14 +597,14 @@ export default function Trainer({ section }: { section: string }) {
           </Link>
           <Link
             className={`nav-item ${section === "books" ? "selected" : ""}`}
-            href="/hn/books"
+            href="/-/books"
           >
             <Library size={21} />
             หนังสืออ้างอิง
           </Link>
           <Link
             className={`nav-item ${section === "api" ? "selected" : ""}`}
-            href="/hn/api"
+            href="/-/api"
           >
             <Code2 size={21} />
             Developer API
@@ -622,7 +626,7 @@ export default function Trainer({ section }: { section: string }) {
             </Link>
           </div>
           <Link
-            href="/hn/settings"
+            href="/-/settings"
             className={`nav-item ${section === "settings" ? "selected" : ""}`}
           >
             <Settings size={20} />
@@ -657,7 +661,7 @@ export default function Trainer({ section }: { section: string }) {
               className="search-box"
               onSubmit={(e) => {
                 e.preventDefault();
-                navigate(`/hn/library?q=${encodeURIComponent(query)}`);
+                navigate(`/-/library?q=${encodeURIComponent(query)}`);
               }}
             >
               <Search size={17} />
@@ -669,6 +673,16 @@ export default function Trainer({ section }: { section: string }) {
               />
               <kbd>↵</kbd>
             </form>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="min-h-11 min-w-11"
+              render={<Link href="/-/settings" />}
+              aria-label="ตั้งค่าการเรียน"
+              title="ตั้งค่าการเรียน"
+            >
+              <Settings size={20} />
+            </Button>
             <AccountControls compact />
           </div>
         </header>
@@ -685,7 +699,7 @@ export default function Trainer({ section }: { section: string }) {
               {syncPhase === "conflict"
                 ? "มีความก้าวหน้าใหม่จากอีกอุปกรณ์ ข้อมูลในเครื่องยังไม่ถูกเขียนทับ"
                 : "ยังซิงก์บัญชีไม่ได้ ความก้าวหน้าบนเครื่องยังอยู่"}{" "}
-              <Link className="text-link" href="/hn/settings">
+              <Link className="text-link" href="/-/settings">
                 จัดการข้อมูล
               </Link>
             </div>
@@ -697,6 +711,7 @@ export default function Trainer({ section }: { section: string }) {
           </div>
         )}
         <main id="main" className="content">
+          {section === "kana" && <KanaPractice />}
           {section === "learn" && (
             <>
               <div className="page-heading">
@@ -763,7 +778,7 @@ export default function Trainer({ section }: { section: string }) {
                     </strong>
                   </div>
                   <Link
-                    href="/hn/flashcards"
+                    href="/-/flashcards"
                     className="round-link"
                     aria-label="ทบทวนแฟลชการ์ด"
                   >
@@ -787,19 +802,22 @@ export default function Trainer({ section }: { section: string }) {
                       <h2>เลือกประเภทบทเรียน</h2>
                       <p>คำศัพท์ ไวยากรณ์ คันจิ และบทสนทนา</p>
                     </div>
-                    <label className="level-select">
-                      ระดับ{" "}
-                      <select
-                        aria-label="เลือกระดับ JLPT"
+                    <div className="level-select">
+                      <label htmlFor="learning-level">ระดับ</label>
+                      <Select
                         value={level}
-                        onChange={(e) => changeLevel(e.target.value as Level)}
+                        onValueChange={(value) => value && changeLevel(value as Level)}
                       >
-                        {levels.map((l) => (
-                          <option key={l}>{l}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={15} />
-                    </label>
+                        <SelectTrigger id="learning-level" aria-label="เลือกระดับ JLPT">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {levels.map((l) => (
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div className="category-grid">
                     {(Object.keys(categoryNames) as Category[]).map((c, i) => {
@@ -852,7 +870,7 @@ export default function Trainer({ section }: { section: string }) {
                       </h2>
                       <p>เริ่มจากบทเรียนสั้น ๆ เพียงไม่กี่นาที</p>
                     </div>
-                    <Link className="text-link" href="/hn/library">
+                    <Link className="text-link" href="/-/library">
                       ดูทั้งหมด <ArrowRight size={16} />
                     </Link>
                   </div>
@@ -1168,14 +1186,16 @@ export default function Trainer({ section }: { section: string }) {
                 description="เลือกหนังสือ บท และทิศทางการแปล แล้วเลือกคำตอบที่ถูกต้องจาก 4 ตัวเลือก"
               />
               <div className="practice-settings" aria-label="ตั้งค่าการฝึกคำศัพท์">
-                <label>
-                  หนังสือ
-                  <select
+                <div className="select-field">
+                  <label htmlFor="practice-book">หนังสือ</label>
+                  <Select
                     value={practiceBook}
-                    onChange={(e) => {
-                      setPracticeBook(e.target.value);
+                    items={practiceBooks.map((book) => ({ value: book.id, label: book.title }))}
+                    onValueChange={(value) => {
+                      if (!value) return;
+                      setPracticeBook(value);
                       const selectedBook = practiceBooks.find(
-                        (book) => book.id === e.target.value,
+                        (book) => book.id === value,
                       );
                       setSelectedPracticeUnits(
                         selectedBook?.units.map((unit) => unit.id) ?? [],
@@ -1183,13 +1203,16 @@ export default function Trainer({ section }: { section: string }) {
                       resetTranslationPractice();
                     }}
                   >
-                    {practiceBooks.map((book) => (
-                      <option key={book.id} value={book.id}>
-                        {book.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                    <SelectTrigger id="practice-book"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {practiceBooks.map((book) => (
+                        <SelectItem key={book.id} value={book.id}>
+                          {book.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="practice-unit-picker">
                   <div>
                     <strong>เลือกบทและ れんしゅう</strong>
@@ -1869,7 +1892,7 @@ export default function Trainer({ section }: { section: string }) {
                             ใช้ข้อมูลบัญชีแทนข้อมูลในเครื่อง
                           </Action>
                         )}
-                        <Link className="text-link" href="/hn/api">
+                        <Link className="text-link" href="/-/api">
                           ดู API ข้อมูลของฉัน <ArrowUpRight />
                         </Link>
                       </>
@@ -2001,7 +2024,7 @@ curl -H "Authorization: Bearer $KOTOBA_API_KEY" \
             <span>
               <span className="green-dot" /> เรียนได้ทุกคน · โค้ดเปิดเผย
             </span>
-            <Link href="/hn/api">
+            <Link href="/-/api">
               API & Data <ArrowUpRight size={12} />
             </Link>
           </footer>

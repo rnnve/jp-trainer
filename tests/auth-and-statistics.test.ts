@@ -4,8 +4,12 @@ import {emptyProgress,type Progress} from '../src/lib/progress';
 import {publicStatistics,refreshStatistics} from '../src/lib/public-statistics';
 
 test('Clerk return destinations stay inside the trainer',()=>{
- expect(safeReturnTo('/hn/library?category=grammar')).toBe('/hn/library?category=grammar');
- for(const url of ['https://evil.example','//evil.example','/hn/\\evil.example','/hn/api/auth/signout','/hn/login','/hn/%2f%2fevil','/hnetwork',null])expect(safeReturnTo(url)).toBe('/hn/learn');
+ expect(safeReturnTo('/-/library?category=grammar')).toBe('/-/library?category=grammar');
+ for(const alias of ['hn','dash','dashboard']) {
+  expect(safeReturnTo(`/${alias}/library?q=test`)).toBe('/-/library?q=test');
+  for(const suffix of ['/login','/register','/api/auth/signout','/%2fevil','/\\evil'])expect(safeReturnTo(`/${alias}${suffix}`)).toBe('/-/learn');
+ }
+ for(const url of ['https://evil.example','//evil.example','/-/\\evil.example','/-/api/auth/signout','/-/login','/-/%2f%2fevil','/-etwork',null])expect(safeReturnTo(url)).toBe('/-/learn');
 });
 const progress:Progress={...emptyProgress,saved:['N5-v2'],completed:['N5-v1'],reviews:{'N5-v1':{due:99,interval:1,repetitions:1}},activity:[{date:'2026-11-06',kind:'lesson',id:'N5-v1'},{date:'2026-11-07',kind:'review',id:'N5-v1',correct:true},{date:'2026-11-07',kind:'quiz',id:'N5-v1',correct:true},{date:'2026-11-07',kind:'quiz',id:'N5-v2',correct:false}]};
 test('public projection shares aggregate statistics but no raw answers, bookmarks, or review schedule',()=>{

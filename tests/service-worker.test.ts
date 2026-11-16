@@ -32,7 +32,8 @@ test('private pages, authentication, private APIs, and RSC responses bypass all 
   URL,self:{location:{origin:'http://localhost:3000'},addEventListener:(name:string,fn:typeof handler)=>{if(name==='fetch')handler=fn;}},
   caches:{match:()=>{throw Error('Private response must not touch cache');}}
  });
- for(const path of ['/hn','/hn/learn','/hn/library','/hn/api/auth/session','/hn/api/statistics','/api/v1/stats'])handler!({request:new Request(`http://localhost:3000${path}`),respondWith:()=>{responses++;}});
+ for(const path of ['/-','/-/learn','/-/library','/-/api/auth/session','/-/api/statistics','/api/v1/stats'])handler!({request:new Request(`http://localhost:3000${path}`),respondWith:()=>{responses++;}});
+ for(const alias of ['hn','dash','dashboard'])for(const suffix of ['', '/learn', '/login', '/api/statistics'])handler!({request:new Request(`http://localhost:3000/${alias}${suffix}`),respondWith:()=>{responses++;}});
  handler!({request:new Request('http://localhost:3000/',{headers:{RSC:'1'}}),respondWith:()=>{responses++;}});
  expect(responses).toBe(0);
 });

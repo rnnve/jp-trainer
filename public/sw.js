@@ -1,4 +1,4 @@
-const CACHE='kotoba-v4';
+const CACHE='kotoba-v5';
 // Authenticated pages, RSC payloads, and API responses are always network-only.
 const SHELL=['/offline.html','/icon.svg','/icons/icon-192.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
@@ -6,7 +6,7 @@ self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=
 self.addEventListener('fetch',event=>{
  const request=event.request,url=new URL(request.url);
  if(request.method!=='GET'||url.origin!==self.location.origin)return;
- if(url.pathname==='/hn'||url.pathname.startsWith('/hn/')||url.pathname.startsWith('/api/')||request.headers.get('RSC')==='1')return;
+ if(['/-','/hn','/dash','/dashboard'].some(prefix=>url.pathname===prefix||url.pathname.startsWith(prefix+'/'))||url.pathname.startsWith('/api/')||request.headers.get('RSC')==='1')return;
  if(request.mode==='navigate'){
   event.respondWith(fetch(request).catch(()=>caches.match('/offline.html')));
  }else if(url.pathname.startsWith('/_next/static/')||url.pathname.startsWith('/icons/')||url.pathname==='/icon.svg'){

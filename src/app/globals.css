@@ -722,7 +722,7 @@ m3e-button:not(:defined),
   color: var(--text-secondary);
   flex-shrink: 0;
 }
-.level-select select {
+.level-select [data-slot="select-trigger"] {
   appearance: none;
   border: 0;
   background: transparent;
@@ -1366,7 +1366,31 @@ m3e-button:not(:defined),
   max-width: 680px;
   margin: 28px auto 0;
 }
+.kana-settings {
+  max-width: 680px;
+  margin: 28px auto;
+}
+.kana-settings .select-field {
+  display: grid;
+  gap: 8px;
+}
+.kana-settings [data-slot="select-trigger"] {
+  width: 100%;
+  min-height: 44px;
+}
+.kana-settings p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 12px 0;
+}
+.quiz-panel > h2.kana-prompt {
+  font-family: var(--font-japanese);
+  font-size: clamp(64px, 16vw, 104px);
+  line-height: 1.5;
+  margin: 20px 0;
+}
 .practice-settings label,
+.practice-settings .select-field,
 .practice-settings fieldset {
   display: flex;
   flex-direction: column;
@@ -1431,7 +1455,7 @@ m3e-button:not(:defined),
 .practice-settings legend {
   margin-bottom: 8px;
 }
-.practice-settings select {
+.practice-settings [data-slot="select-trigger"] {
   width: 100%;
   min-height: 46px;
   padding: 8px 12px;
@@ -3613,7 +3637,8 @@ m3e-button:not(:defined),
   gap: 16px;
   margin-top: 24px;
 }
-.api-key-form label {
+.api-key-form label,
+.api-key-form .select-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -3621,7 +3646,7 @@ m3e-button:not(:defined),
   font-size: 13px;
 }
 .api-key-form input,
-.api-key-form select {
+.api-key-form [data-slot="select-trigger"] {
   min-height: 44px;
   padding: 8px 12px;
   border: 1px solid var(--line);
