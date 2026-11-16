@@ -79,7 +79,7 @@ Auth.js, owner GitHub ID, Client ID/Secret เดิม และ owner-only cal
 
 - `/-/learn`, `/-/library`, `/-/flashcards`
 - `/-/practice`, `/-/conversations`, `/-/statistics`
-- `/-/kana` — ฝึกอ่านฮิรางานะ คาตาคานะ หรือรวมทั้งสองชุด ครั้งละ 10 ข้อ (ตัวอักษรพื้นฐานชุดละ 46 ตัว)
+- `/-/kana` — ฝึกอ่านฮิรางานะ คาตาคานะ หรือรวมทั้งสองชุด เลือกฝึกเฉพาะวรรคได้ ครั้งละไม่เกิน 10 ข้อ (ตัวอักษรพื้นฐานชุดละ 46 ตัว)
 - `/-/books`, `/-/settings`, `/-/api`
 
 เส้นทางเดิม เช่น `/learn` redirect ไป `/-/learn`; `/statistics` redirect ไป `/`

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createKanaRound, type KanaMode, type KanaQuestion } from "@/lib/kana";
+import { createKanaRound, kanaRows, type KanaMode, type KanaQuestion } from "@/lib/kana";
 
 const modes = [
   { value: "hiragana", label: "ฮิรางานะ · あいうえお" },
@@ -14,6 +14,7 @@ const modes = [
 
 export default function KanaPractice() {
   const [mode, setMode] = useState<KanaMode>("hiragana");
+  const [selectedRows, setSelectedRows] = useState(() => kanaRows.map((row) => row.id));
   const [questions, setQuestions] = useState<KanaQuestion[]>([]);
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState<string | null>(null);
@@ -23,7 +24,15 @@ export default function KanaPractice() {
   const correct = answer === question?.reading;
 
   function start() {
-    setQuestions(createKanaRound(mode));
+    if (!selectedRows.length) return;
+    setQuestions(createKanaRound(mode, selectedRows));
+    setIndex(0);
+    setAnswer(null);
+    setScore(0);
+  }
+  function changeRows(rows: string[]) {
+    setSelectedRows(rows);
+    setQuestions([]);
     setIndex(0);
     setAnswer(null);
     setScore(0);
@@ -35,8 +44,9 @@ export default function KanaPractice() {
         <div>
           <span className="eyebrow">かな / ตัวอักษรญี่ปุ่น</span>
           <h1>ฝึกฮิรางานะและคาตาคานะ</h1>
-          <p>ดูตัวอักษรแล้วเลือกเสียงอ่านโรมาจิ ฝึกครั้งละ 10 ข้อ</p>
+          <p>ดูตัวอักษรแล้วเลือกเสียงอ่านโรมาจิ ฝึกครั้งละไม่เกิน 10 ข้อตามวรรคที่เลือก</p>
         </div>
+
       </div>
       <section className="panel kana-settings" aria-label="ตั้งค่าการฝึกตัวอักษร">
         <div className="select-field">
@@ -55,9 +65,33 @@ export default function KanaPractice() {
             </SelectContent>
           </Select>
         </div>
+        <fieldset className="kana-rows">
+          <legend>เลือกวรรค</legend>
+          <div className="kana-row-actions">
+            <span>เลือกแล้ว {selectedRows.length} / {kanaRows.length} วรรค</span>
+            <Button variant="ghost" onClick={() => changeRows(kanaRows.map((row) => row.id))}>เลือกทั้งหมด</Button>
+            <Button variant="ghost" onClick={() => changeRows([])}>ล้างการเลือก</Button>
+          </div>
+          <div className="kana-row-grid">
+            {kanaRows.map((row) => (
+              <label key={row.id}>
+                <input type="checkbox" checked={selectedRows.includes(row.id)}
+                  onChange={(event) => changeRows(event.target.checked
+                    ? [...selectedRows, row.id]
+                    : selectedRows.filter((id) => id !== row.id))} />
+                <span>
+                  <span lang="ja">{mode === "hiragana" ? row.hiragana : mode === "katakana" ? row.katakana : `${row.hiragana} / ${row.katakana}`}</span>
+                  <small>{row.readings}</small>
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <p>เปลี่ยนชุดตัวอักษรหรือวรรคจะเริ่มรอบใหม่ โดยไม่สุ่มคำถามนอกวรรคที่เลือก</p>
         <p>ตัวอักษรพื้นฐานชุดละ 46 ตัว ยังไม่รวมเสียงขุ่น เสียงกึ่งขุ่น และเสียงควบ</p>
         <p>ใช้ shi, chi, tsu, fu และ wo สำหรับ を / ヲ ซึ่งเมื่อใช้เป็นคำช่วยจะออกเสียง o</p>
-        <Button className="min-h-11" onClick={start}>
+        {!selectedRows.length && <p role="status">เลือกอย่างน้อยหนึ่งวรรคเพื่อเริ่มฝึก</p>}
+        <Button className="min-h-11" onClick={start} disabled={!selectedRows.length}>
           {questions.length ? "เริ่มรอบใหม่" : "เริ่มฝึก"} <RotateCcw size={16} />
         </Button>
       </section>
@@ -65,7 +99,7 @@ export default function KanaPractice() {
         <section className="quiz-result" aria-label="ผลการฝึกตัวอักษร">
           <h2>ผลการฝึกตัวอักษร</h2>
           <div className="quiz-score">{score}<span> / {questions.length}</span></div>
-          <p>ตอบถูก {score * 10}% · ฝึกซ้ำเพื่อจดจำตัวอักษรให้คล่องขึ้น</p>
+          <p>ตอบถูก {Math.round(score / questions.length * 100)}% · ฝึกซ้ำเพื่อจดจำตัวอักษรให้คล่องขึ้น</p>
           <Button className="min-h-11" onClick={start}>ฝึกอีกครั้ง <RotateCcw size={16} /></Button>
         </section>
       ) : question ? (

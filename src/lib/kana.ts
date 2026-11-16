@@ -1,8 +1,8 @@
 export type KanaMode = "hiragana" | "katakana" | "combined";
-export type KanaCharacter = { character: string; reading: string; script: Exclude<KanaMode, "combined"> };
+export type KanaCharacter = { character: string; reading: string; row: string; script: Exclude<KanaMode, "combined"> };
 export type KanaQuestion = KanaCharacter & { options: string[] };
 
-const rows = [
+export const kanaRows = [
   ["あいうえお", "アイウエオ", "a i u e o"],
   ["かきくけこ", "カキクケコ", "ka ki ku ke ko"],
   ["さしすせそ", "サシスセソ", "sa shi su se so"],
@@ -13,12 +13,12 @@ const rows = [
   ["やゆよ", "ヤユヨ", "ya yu yo"],
   ["らりるれろ", "ラリルレロ", "ra ri ru re ro"],
   ["わをん", "ワヲン", "wa wo n"],
-];
+].map(([hiragana, katakana, readings]) => ({ id: readings.split(" ")[0], hiragana, katakana, readings }));
 
-export const kanaCharacters: KanaCharacter[] = rows.flatMap(([hiragana, katakana, readings]) =>
+export const kanaCharacters: KanaCharacter[] = kanaRows.flatMap(({ id, hiragana, katakana, readings }) =>
   readings.split(" ").flatMap((reading, index) => [
-    { character: hiragana[index], reading, script: "hiragana" as const },
-    { character: katakana[index], reading, script: "katakana" as const },
+    { character: hiragana[index], reading, row: id, script: "hiragana" as const },
+    { character: katakana[index], reading, row: id, script: "katakana" as const },
   ]),
 );
 
@@ -31,8 +31,8 @@ function shuffled<T>(items: T[], random: () => number): T[] {
   return result;
 }
 
-export function createKanaRound(mode: KanaMode, random = Math.random): KanaQuestion[] {
-  const pool = kanaCharacters.filter((item) => mode === "combined" || item.script === mode);
+export function createKanaRound(mode: KanaMode, selectedRows = kanaRows.map((row) => row.id), random = Math.random): KanaQuestion[] {
+  const pool = kanaCharacters.filter((item) => selectedRows.includes(item.row) && (mode === "combined" || item.script === mode));
   // A combined round always includes both scripts.
   const selected = mode === "combined"
     ? shuffled([
