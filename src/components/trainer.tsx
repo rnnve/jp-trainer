@@ -445,9 +445,11 @@ export default function Trainer({ section }: { section: string }) {
         ? practiceQuestion.japanese
         : practiceQuestion.meaning;
     const correct = value === expected;
-    setPracticeAnswer(value);
-    setPracticeChecked(true);
     if (correct) setPracticeCorrect((n) => n + 1);
+    else {
+      setPracticeAnswer(value);
+      setPracticeChecked(true);
+    }
     setProgress((p) => ({
       ...p,
       activity: [
@@ -460,6 +462,7 @@ export default function Trainer({ section }: { section: string }) {
         },
       ],
     }));
+    if (correct) nextPracticeQuestion();
   }
   function nextPracticeQuestion() {
     if (!practiceQuestion) return;
@@ -1420,15 +1423,10 @@ export default function Trainer({ section }: { section: string }) {
                   </div>
                   {practiceChecked && (
                     <div
-                      className={`answer-feedback practice-feedback ${practiceAnswer === (practiceDirection === "thai-to-japanese" ? practiceQuestion.japanese : practiceQuestion.meaning) ? "good" : ""}`}
+                      className="answer-feedback practice-feedback"
                     >
                       <strong role="status">
-                        {practiceAnswer ===
-                        (practiceDirection === "thai-to-japanese"
-                          ? practiceQuestion.japanese
-                          : practiceQuestion.meaning)
-                          ? "ตอบถูกต้อง"
-                          : `คำตอบที่ถูกคือ ${practiceDirection === "thai-to-japanese" ? practiceQuestion.japanese : practiceQuestion.meaning}`}
+                        คำตอบที่ถูกคือ {practiceDirection === "thai-to-japanese" ? practiceQuestion.japanese : practiceQuestion.meaning}
                       </strong>
                       <p>
                         คำอ่าน: <span lang="ja">{practiceQuestion.reading}</span>

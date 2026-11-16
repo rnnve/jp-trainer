@@ -21,7 +21,6 @@ export default function KanaPractice() {
   const [score, setScore] = useState(0);
   const question = questions[index];
   const finished = questions.length > 0 && index === questions.length;
-  const correct = answer === question?.reading;
 
   function start() {
     if (!selectedRows.length) return;
@@ -116,8 +115,10 @@ export default function KanaPractice() {
                 className={answer === null ? "" : option === question.reading ? "correct" : option === answer ? "incorrect" : ""}
                 onClick={() => {
                   if (answer !== null) return;
-                  setAnswer(option);
-                  if (option === question.reading) setScore((value) => value + 1);
+                  if (option === question.reading) {
+                    setScore((value) => value + 1);
+                    setIndex((value) => value + 1);
+                  } else setAnswer(option);
                 }}>
                 <span>{i + 1}</span>
                 {option}
@@ -126,8 +127,8 @@ export default function KanaPractice() {
             ))}
           </div>
           {answer !== null && (
-            <div className={`answer-feedback practice-feedback ${correct ? "good" : ""}`}>
-              <strong role="status">{correct ? "ตอบถูกต้อง" : `คำตอบที่ถูกคือ ${question.reading}`}</strong>
+            <div className="answer-feedback practice-feedback">
+              <strong role="status">คำตอบที่ถูกคือ {question.reading}</strong>
               <p><span lang="ja">{question.character}</span> อ่านว่า {question.reading}</p>
               <Button className="min-h-11" onClick={() => { setIndex((value) => value + 1); setAnswer(null); }}>
                 {index + 1 === questions.length ? "ดูผลการฝึก" : "ข้อถัดไป"} <ArrowRight size={16} />
