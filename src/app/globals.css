@@ -2357,20 +2357,21 @@ m3e-button:not(:defined),
   margin-top: 12px;
 }
 .public-view-badge {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 12px;
   color: var(--primary);
   margin-top: 20px;
 }
 .public-word {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   align-items: center;
   column-gap: 24px;
   min-width: 0;
-  border-left: 1px solid #ffffff12;
-  padding-left: 40px;
+  padding: 24px;
 }
 .public-word .word-caption {
   grid-column: 1 / -1;
@@ -2386,15 +2387,13 @@ m3e-button:not(:defined),
   display: flex;
   flex-direction: column;
   gap: 12px;
-  border-left: 1px solid #ffffff12;
-  padding-left: 24px;
+  min-width: 0;
 }
 .word-definition > span {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--primary);
-  writing-mode: vertical-rl;
+  writing-mode: horizontal-tb;
   line-height: 1.8;
-  max-height: 168px;
 }
 .word-definition > strong {
   font-size: 16px;
@@ -2945,14 +2944,14 @@ m3e-button:not(:defined),
     font-size: 28px;
   }
   .public-hero {
-    grid-template-columns: 1.4fr 1fr;
+    grid-template-columns: 1fr;
     padding: 24px;
   }
   .public-word {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 24px;
+    padding: 24px;
   }
   .public-word-kanji {
     font-size: 72px;
@@ -3402,12 +3401,12 @@ m3e-button:not(:defined),
   }
   .public-word {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
     grid-template-rows: auto 1fr;
     gap: 4px 20px;
     border-left: 0;
     border-top: 1px solid #ffffff12;
-    padding: 16px 0 0;
+    padding: 16px;
   }
   .public-word .word-caption {
     grid-column: 2;
